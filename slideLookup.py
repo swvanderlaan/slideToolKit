@@ -105,7 +105,8 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
         # Skip subdirectories by using listdir instead of os.walk
         # for root, dirs, files in os.walk(lookup_directory_walk):
         for file in os.listdir(lookup_directory_walk):
-
+            if verbose:
+                print(f"Checking file: {file}")
             # Filter files by extension
             if file.lower().endswith(('.TIF', '.ndpi')):
 
