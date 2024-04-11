@@ -131,18 +131,15 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
                             else:
                                 if verbose:
                                     print(f"...already copied...")
-    if copy_dir:
-        if verbose: 
-            print(f"> Copying the found files to the copy directory.")
-    else: 
-        if verbose:
-            print(f"> Not copying, but simply collecting the found following samples:")
-        # for found_sample, directory, file in found_samples:
-        #     print(f"- {found_sample} [ {directory} ] [ {file} ]")
-        for found_sample in found_samples:
-            if isinstance(found_sample, tuple):
-                print(f"- {found_sample[0]} [ {found_sample[1]} ] [ {found_sample[2]} ]")
-    #return found_samples
+    # if copy_dir:
+    #     if verbose: 
+    #         print(f"> Copying the found files to the copy directory.")
+    # else: 
+    #     if verbose:
+    #         print(f"> Not copying, but simply collecting the found following samples:")
+    #     for found_sample, directory, file in found_samples:
+    #         print(f"- {found_sample} [ {directory} ] [ {file} ]")
+    return found_samples
 
 # Define function to create directory to copy files to
 def create_copy_directory(copy_dir, verbose):
