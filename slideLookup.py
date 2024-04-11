@@ -152,7 +152,7 @@ def copy_file_to_directory(file_path, copy_dir, verbose):
 # Define function to only check whether samples exist in directories
 def check_samples_exist_in_directories(samples, study_type, directories, verbose):
     # Initialize a dictionary to store the results
-    results = {}
+    check_only_results = {}
 
     # Get the lookup directory
     lookup_directory = get_lookup_directory(study_type, verbose)
@@ -160,7 +160,7 @@ def check_samples_exist_in_directories(samples, study_type, directories, verbose
     # Loop over the samples
     for sample in samples:
         # Initialize the result for this sample as False (not found)
-        results[sample] = False
+        check_only_results[sample] = False
         # Loop over the directories    
         for directory in directories:
             lookup_directory_walk = os.path.join(lookup_directory, directory)
@@ -178,16 +178,16 @@ def check_samples_exist_in_directories(samples, study_type, directories, verbose
                         if verbose:
                             print(f"Found {sample} in {directory} as {file}.")
                         # Update the result for this sample as True (found)
-                        results[sample] = True
+                        check_only_results[sample] = True
                         break  # Stop searching for this sample in this directory
             # If the sample is found in this directory, no need to check other directories
-            if results[sample]:
+            if check_only_results[sample]:
                 break
         
         # If the sample is not found in any directory, move to the next sample
     
     # Return the results dictionary
-    return results
+    return check_only_results
         #         else:
         #             continue  # Continue searching for other samples
         #         break  # Stop searching for samples in other directories
@@ -313,21 +313,21 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
         # Write the statistics and results to a log file
         try:
             with open(log_file_path, 'w') as log_file:
-            # Write script information and conditions...
-            log_file.write(f"+ {VERSION_NAME} v{VERSION} +")
-            log_file.write(f"\nLookup WSI files in VirtuaSlides of the Athero-Express and AAA-Express Biobank Studies.\n")
-            log_file.write(f"\nExecuted lookup using the following conditions:")
-            log_file.write(f"\n> Study type: {args.study_type}")
-            log_file.write(f"\n> Direcor(y/ies): {args.dir}")
-            log_file.write(f"\n> Samples: {args.samples}\n")
-            # Write the results of the check to the log
-            log_file.write(f"\n\nListing sample existence results:\n")
-            for sample, exists in check_results.items():
-                log_file.write(f"Sample {sample}: {'Exists.' if exists else 'Does not exist.'}\n")
-                # Add any other relevant information to the log...
-            log_file.write(f"\nScript executed on {today_date.strftime('%Y-%m-%d')}. Total execution time was {formatted_time} ({time.time() - start_time:.2f} seconds).\n")
-            log_file.write(f"\n+ {VERSION_NAME} v{VERSION}. {COPYRIGHT} +")
-            log_file.write(f"\n{COPYRIGHT_TEXT}")
+                # Write script information and conditions...
+                log_file.write(f"+ {VERSION_NAME} v{VERSION} +")
+                log_file.write(f"\nLookup WSI files in VirtuaSlides of the Athero-Express and AAA-Express Biobank Studies.\n")
+                log_file.write(f"\nExecuted lookup using the following conditions:")
+                log_file.write(f"\n> Study type: {args.study_type}")
+                log_file.write(f"\n> Direcor(y/ies): {args.dir}")
+                log_file.write(f"\n> Samples: {args.samples}\n")
+                # Write the results of the check to the log
+                log_file.write(f"\n\nListing sample existence results:\n")
+                for sample, exists in check_only_results.items():
+                    log_file.write(f"Sample {sample}: {'Exists.' if exists else 'Does not exist.'}\n")
+                    # Add any other relevant information to the log...
+                log_file.write(f"\nScript executed on {today_date.strftime('%Y-%m-%d')}. Total execution time was {formatted_time} ({time.time() - start_time:.2f} seconds).\n")
+                log_file.write(f"\n+ {VERSION_NAME} v{VERSION}. {COPYRIGHT} +")
+                log_file.write(f"\n{COPYRIGHT_TEXT}")
 
             print(f"\nLog written to [{log_file_path}].")
 
