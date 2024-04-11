@@ -10,9 +10,13 @@
     and is of the form [`todays_date`.`study_type`.slideLookup.`log`.log]. 
 
     Optionally, the found files can be copied (`--copy`) to another directory (`--copy-dir`). By default, the
-    files will be copied to the following directory: [ ../VirtualSlides/Projects/histo_lookups ].  The `--log` flag will change the 
-    default output name of the log file, and `--copy-dir` will change the log-output directory too. It provides 
-    extra information (--verbose) if requested.
+    files will be copied to the following directory: [ ../VirtualSlides/Projects/histo_lookups ].  The `--log` flag 
+    will change the default output name of the log file, and `--copy-dir` will change the log-output directory too. 
+    
+    Optionally, the script can only check if a given (list of) sample(s) exist for a given (list of) 
+    stain(s) (`--check_only`).
+
+    It provides extra information (--verbose) if requested.
 
     Example usage:
     python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy --copy-dir /home/user/Desktop/ --verbose]
@@ -226,8 +230,12 @@ and is of the form [`todays_date`.`study_type`.slideLookup.`log`.log].
 
 Optionally, the found files can be copied (`--copy`) to another directory (`--copy-dir`). By default, the
 files will be copied to the following directory: [ {DEFAULT_COPY_DIRECTORY} ].  The `--log` flag will change the 
-default output name of the log file, and `--copy-dir` will change the log-output directory too. It provides 
-extra information (--verbose) if requested.
+default output name of the log file, and `--copy-dir` will change the log-output directory too. 
+
+Optionally, the script can only check if a given (list of) sample(s) exist for a given (list of) 
+stain(s) (`--check_only`).
+
+It provides extra information (--verbose) if requested.
 
 Example usage:
 python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy --copy-dir /home/user/Desktop/ --verbose]
