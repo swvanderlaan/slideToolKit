@@ -253,8 +253,6 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
     else:
         print(f"> Not copying, but simply collecting the found following samples:")
         found_samples = find_samples_in_directories(args.samples, args.study_type, args.dir, args.verbose, COPY_DIRECTORY)
-        for found_sample in found_samples:
-            print(f"- {found_sample}")
         for found_sample, directory, file in found_samples:
             print(f"- {found_sample} [ {directory} ] [ {file} ]")
 
