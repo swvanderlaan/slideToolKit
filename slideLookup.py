@@ -363,7 +363,7 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
                 for copied_file in copied_files:
                     log_file.write(f"- {copied_file}\n")
             else: 
-                log_write("\nFound the following samples:\n")
+                log_file.write("\nFound the following samples:\n")
                 for found_sample in found_samples:
                     log_file.write(f"- {found_sample}\n")
             ### WANT TO ADD THIS LATER ###
