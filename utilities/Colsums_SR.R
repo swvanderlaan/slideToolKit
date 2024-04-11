@@ -31,9 +31,9 @@ df = fread(input = paste0(args[1], "_", args[2]),
 # specific for a stain
 # VAL = sum(df$AreaOccupied_AreaOccupied_NKT_OBJ) / sum(df$AreaOccupied_TotalArea_NKT_OBJ)
 # original code
-VAL = sum(df$AreaOccupied_AreaOccupied_DAB_object) / sum(df$AreaOccupied_AreaOccupied_Tissue_object)
-VAL2 = sum(df$AreaOccupied_AreaOccupied_DAB_object)
-VAL3 = sum(df$AreaOccupied_AreaOccupied_Tissue_object)
+VAL = sum(df$AreaOccupied_AreaOccupied_SR_Tissue) / sum(df$AreaOccupied_AreaOccupied_Tissue)
+VAL2 = sum(df$AreaOccupied_AreaOccupied_SR_Tissue)
+VAL3 = sum(df$AreaOccupied_AreaOccupied_Tissue)
 if (is.na(VAL)) {VAL=0}
 cat( VAL, VAL2, VAL3, sep = ", " )
 

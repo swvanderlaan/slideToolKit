@@ -37,7 +37,7 @@ VAL = sum(df$AreaOccupied_AreaOccupied_EVG_Tissue) / sum(df$AreaOccupied_AreaOcc
 VAL2 = sum(df$AreaOccupied_AreaOccupied_EVG_Tissue)
 VAL3 = sum(df$AreaOccupied_AreaOccupied_Tissue)
 if (is.na(VAL)) {VAL=0}
-cat( VAL, VAL2, VAL3 )
+cat( VAL, VAL2, VAL3, sep = ", " )
 
 # cat("\nSession information\n")
 # print(version)

@@ -182,10 +182,44 @@ then
 else
 	if [ -f $DATA_DIR/_ndpi/$NR.*.ndpi ]; then
     	echo "NDPI of $NR found."
-		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/_ndpi/$NR.*.jpg --out $SAVE_DIR/
+		if [ -f $MASK_DIR/_ndpi/$NR.*.jpg ]; then
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/_ndpi/$NR.*.jpg --out $SAVE_DIR/
+		elif [ -f $MASK_DIR/_ndpi/$NR.*.png ]; then
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/_ndpi/$NR.*.png --out $SAVE_DIR/
+		elif [ -f $MASK_DIR/_images/$NR.*.jpg ]; then
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/_images/$NR.*.jpg --out $SAVE_DIR/
+		else
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/FIBRIN/$NR.*.jpg --out $SAVE_DIR/
+		fi
 	elif [ -f $DATA_DIR/_tif/$NR.*.TIF ]; then
 		echo "TIF of $NR found."
-		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/$NR.*.TIF --mask $MASK_DIR/_tif/$NR.*.jpg --out $SAVE_DIR/
+		if [ -f $MASK_DIR/_tif/$NR.*.jpg ]; then
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/$NR.*.TIF --mask $MASK_DIR/_tif/$NR.*.jpg --out $SAVE_DIR/
+		elif [ -f $MASK_DIR/_images/$NR.*.jpg ]; then
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/$NR.*.TIF --mask $MASK_DIR/_images/$NR.*.jpg --out $SAVE_DIR/
+		else
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/$NR.*.TIF --mask $MASK_DIR/FIBRIN/$NR.*.jpg --out $SAVE_DIR/
+		fi
+	elif [ -f $DATA_DIR/_ndpi_extra/$NR.*.ndpi ]; then
+    	echo "NDPI of $NR found."
+		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi_extra/$NR.*.ndpi --mask $MASK_DIR/_ndpi_extra/$NR.*.jpg --out $SAVE_DIR/
+	elif [ -f $DATA_DIR/_tif_extra/$NR.*.TIF ]; then
+		echo "TIF of $NR found."
+		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif_extra/$NR.*.TIF --mask $MASK_DIR/_tif_extra/$NR.*.jpg --out $SAVE_DIR/
+	elif [ -f $DATA_DIR/_ndpi/_images/$NR.*.ndpi ]; then
+    	echo "NDPI of $NR found."
+		if [ -f $MASK_DIR/_ndpi/$NR.*.jpg ]; then
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/_images/$NR.*.ndpi --mask $MASK_DIR/_ndpi/$NR.*.jpg --out $SAVE_DIR/
+		else
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/_images/$NR.*.ndpi --mask $MASK_DIR/_images/$NR.*.jpg --out $SAVE_DIR/
+		fi
+	elif [ -f $DATA_DIR/_tif/_images/$NR.*.TIF ]; then
+		echo "TIF of $NR found."
+		if [ -f $MASK_DIR/_tif/$NR.*.jpg ]; then
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/_images/$NR.*.TIF --mask $MASK_DIR/_tif/$NR.*.jpg --out $SAVE_DIR/
+		else
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/_images/$NR.*.TIF --mask $MASK_DIR/_images/$NR.*.jpg --out $SAVE_DIR/
+		fi
 	elif [ -f $DATA_DIR/_images_dropzone/$NR.*.ndpi ]; then
 		echo "[CUSTOM (_images_dropzone)] NDPI of $NR found."
 		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_images_dropzone/$NR.*.ndpi --mask $MASK_DIR/CD68/$NR.*.jpg --out $SAVE_DIR/
