@@ -131,15 +131,7 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
                             else:
                                 if verbose:
                                     print(f"...already copied...")
-    # if copy_dir:
-    #     if verbose: 
-    #         print(f"> Copying the found files to the copy directory.")
-    # else: 
-    #     if verbose:
-    #         print(f"> Not copying, but simply collecting the found following samples:")
-    #     for found_sample, directory, file in found_samples:
-    #         print(f"- {found_sample} [ {directory} ] [ {file} ]")
-    # return found_samples
+    return found_samples
 
 # Define function to create directory to copy files to
 def create_copy_directory(copy_dir, verbose):
@@ -259,9 +251,13 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
         for copied_file in copied_files:
             print(f"- {copied_file}")
     else:
+        print(f"> Not copying, but simply collecting the found following samples:")
         found_samples = find_samples_in_directories(args.samples, args.study_type, args.dir, args.verbose, COPY_DIRECTORY)
         for found_sample in found_samples:
             print(f"- {found_sample}")
+        for found_sample, directory, file in found_samples:
+            print(f"- {found_sample} [ {directory} ] [ {file} ]")
+
 
     # Calculate the elapsed time in seconds
     elapsed_time = time.time() - start_time
