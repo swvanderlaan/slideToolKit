@@ -4,7 +4,7 @@
     slideLookup
     This script is designed to perform a whole-slide image (WSI) sample lookup (`--samples`) in a directory or 
     a set of directories (`--dir`) containing WSI for a given `--study_type` (AE or AAA). By default, the script 
-    will look for the following directories: 
+    will only check for the existence of the given (list of) samples and look for the following stains: 
     [ "CD3", "CD34", "CD66b", "CD68", "EVG", "FIBRIN", "GLYCC", "HE", "SMA", "SR", "SR_POLARIZED" ]. 
     These can be changed with the `--dir` flag. By default a log file is written to the current working directory 
     and is of the form [`todays_date`.`study_type`.slideLookup.`log`.log]. 
@@ -12,9 +12,6 @@
     Optionally, the found files can be copied (`--copy`) to another directory (`--copy-dir`). By default, the
     files will be copied to the following directory: [ ../VirtualSlides/Projects/histo_lookups ].  The `--log` flag 
     will change the default output name of the log file, and `--copy-dir` will change the log-output directory too. 
-    
-    Optionally, the script can only check if a given (list of) sample(s) exist for a given (list of) 
-    stain(s) (`--check_only`).
 
     It provides extra information (--verbose) if requested.
 
@@ -31,7 +28,6 @@
     --copy, -c          Copy files to copy-dir. Optional.
     --copy_dir, -cd     Specify the directory to copy files to. Optional. By default the files will be copied to the following directory:
                         [ ../VirtualSlides/Projects/histo_lookups ].
-    --check_only, -co   Only check if a given (list of) sample(s) exist for a given (list of) stain(s). Optional.
     --verbose, -v       Print extra information. Optional.
     --version, -V       Print version. Optional.
     --help, -h          Print help message. Optional.
@@ -57,10 +53,10 @@ from datetime import datetime
 from datetime import timedelta
 
 # Define default directories
-DEFAULT_DIRECTORIES_EXTENDED = ["CD14", "CD3", "CD31", "CD34", "CD3_CD56_NKT", "CD42B", "CD66b", "CD68", "CD8",
+DEFAULT_STAINS_EXTENDED = ["CD14", "CD3", "CD31", "CD34", "CD3_CD56_NKT", "CD42B", "CD66b", "CD68", "CD8",
                                 "CD86", "EVG", "FIBRIN", "GLYCC", "HE", "HE-FIBRIN", "HHIPL1", "MPO", "MT", "SMA",
                                 "SR", "SR_POLARIZED", "VONWILLEBRANDFACTOR"]
-DEFAULT_DIRECTORIES = ["CD3", "CD34", "CD66b", "CD68", "EVG", "FIBRIN", "GLYCC", "HE", "SMA", "SR", "SR_POLARIZED"]
+DEFAULT_STAINS = ["CD3", "CD34", "CD66b", "CD68", "EVG", "FIBRIN", "GLYCC", "HE", "SMA", "SR", "SR_POLARIZED"]
 
 ### WANT TO ADD THIS LATER ###
 ### a more secure way to do this is to use the os.path.join() function
@@ -228,7 +224,7 @@ def main():
 This script is designed to perform a whole-slide image (WSI) sample lookup (`--samples`) in a directory or 
 a set of directories (`--dir`) containing WSI for a given `--study_type` (AE or AAA). By default, the script 
 will only check for the existence of the given (list of) samples and look for the following stains: 
-[ {DEFAULT_DIRECTORIES} ]. 
+[ {DEFAULT_STAINS} ]. 
 These can be changed with the `--dir` flag. 
 
 By default a log file is written to the current working directory and is of the form 
@@ -247,7 +243,7 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
 + {VERSION_NAME} v{VERSION}. {COPYRIGHT} \n{COPYRIGHT_TEXT}+''', 
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--samples', '-s', nargs='+', required=True, help='List of whole-slide image (WSI) samples, e.g. AE4211, AE3422. Required.')
-    parser.add_argument('--dir', '-d', nargs='+', help='List of directories, e.g. CD14 CD3. Required.', default=DEFAULT_DIRECTORIES)
+    parser.add_argument('--dir', '-d', nargs='+', help='List of directories, e.g. CD14 CD3. Required.', default=DEFAULT_STAINS)
     parser.add_argument('--study_type', '-t', required=True, help='Specify the study type prefix, e.g., AE or AAA (no other option is possible). Required.')
     parser.add_argument('--log', '-l', help='Specify the log-filename which will be of the form [`todays_date`.`study_type`.slideLookup.`log`.log]. Optional.', default="histo_lookup")
     parser.add_argument('--copy', '-c', action='store_true', help='Copy files to copy-dir. Optional.')
