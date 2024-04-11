@@ -124,6 +124,8 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
 
                         # Copy the file to the copy directory
                         if copy_dir:
+                            if verbose: 
+                                print(f"> Copying the found files to the copy directory.")
                             # set the source to the file path
                             source_path = os.path.join(lookup_directory_walk, file)
                             # Check if the file has already been copied
@@ -132,9 +134,16 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
                                 copied_files.add(file)
                                 if verbose:
                                     print(f"...copying...")
+                                return found_samples, copied_files
                             else:
                                 if verbose:
                                     print(f"...already copied...")
+                        else: 
+                            if verbose:
+                                print(f"Not copying, but simply collecting the found following samples:")
+                            for found_sample in found_samples:
+                                print(f"- {found_sample} [ {directory} ] [ {file} ]")
+                            return found_samples, None
     # Return the list of copied and found files
     return found_samples, copied_files
 
