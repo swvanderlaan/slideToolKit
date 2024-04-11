@@ -288,7 +288,7 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
             print(f"\nNotice: You set to copy WSI files, but did not specify a directory to copy the files to; setting it to default ({COPY_DIRECTORY}).")
     else:
         COPY_DIRECTORY = None
-        log_folder = os.path.join(os.getcwd(), args.study_type + '_' + formatted_today + '_slideLookup') # os.getcwd() 
+        log_folder = os.path.join(os.getcwd()) # os.getcwd() 
         print(f"\nNotice: You did not specify the copy argument. So we are only performing the lookup without copying.")
         if args.verbose:
             print(f">>> Directory was not set ({COPY_DIRECTORY}) <<<\n")
