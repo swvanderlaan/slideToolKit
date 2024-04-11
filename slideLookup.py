@@ -142,7 +142,7 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
         for found_sample in found_samples:
             if isinstance(found_sample, tuple):
                 print(f"- {found_sample[0]} [ {found_sample[1]} ] [ {found_sample[2]} ]")
-    return found_samples
+    #return found_samples
 
 # Define function to create directory to copy files to
 def create_copy_directory(copy_dir, verbose):
