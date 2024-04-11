@@ -27,16 +27,19 @@
     --copy, -c          Copy files to copy-dir. Optional.
     --copy_dir, -cd     Specify the directory to copy files to. Optional. By default the files will be copied to the following directory:
                         [ ../VirtualSlides/Projects/histo_lookups ].
+    --check_only, -co   Only check if a given (list of) sample(s) exist for a given (list of) stain(s). Optional.
     --verbose, -v       Print extra information. Optional.
     --version, -V       Print version. Optional.
     --help, -h          Print help message. Optional.
 
 """
-
+# Change log
+# * v1.1.0 2024-04-11: Added the ability to list the existence of a given list of (a) sample(s) for a given list of (a) stain(s).
+# * v1.0.[0-4] 2024-03-20: Initial versions.
 # Version information
 VERSION_NAME = 'slideLookup'
-VERSION = '1.0.4'
-VERSION_DATE = '2024-03-20'
+VERSION = '1.1.0'
+VERSION_DATE = '2024-04-11'
 COPYRIGHT = 'Copyright 1979-2024. Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = f'\nThe MIT License (MIT). \n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and \nassociated documentation files (the "Software"), to deal in the Software without restriction, \nincluding without limitation the rights to use, copy, modify, merge, publish, distribute, \nsublicense, and/or sell copies of the Software, and to permit persons to whom the Software is \nfurnished to do so, subject to the following conditions: \n\nThe above copyright notice and this permission notice shall be included in all copies \nor substantial portions of the Software. \n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, \nINCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR \nPURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS \nBE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, \nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE \nOR OTHER DEALINGS IN THE SOFTWARE. \n\nReference: http://opensource.org.'
 
@@ -146,6 +149,53 @@ def copy_file_to_directory(file_path, copy_dir, verbose):
     if verbose:
         print(f"> Copied {file_path} to {copy_dir}.")
 
+# Define function to only check whether samples exist in directories
+def check_samples_exist_in_directories(samples, study_type, directories, verbose):
+    # Initialize a dictionary to store the results
+    results = {}
+
+    # Get the lookup directory
+    lookup_directory = get_lookup_directory(study_type, verbose)
+
+    # Loop over the samples
+    for sample in samples:
+        # Initialize the result for this sample as False (not found)
+        results[sample] = False
+        # Loop over the directories    
+        for directory in directories:
+            lookup_directory_walk = os.path.join(lookup_directory, directory)
+            if verbose:
+                print(f"> Checking contents of directory {directory} ({lookup_directory_walk})...")
+        
+            # Loop over the files in the directory
+            for file in os.listdir(lookup_directory_walk):
+                # Filter files by extension
+                if file.lower().endswith(('.TIF', '.ndpi')):
+                # Loop over the samples
+                # for sample in samples:
+                    # Check if the file matches the sample name
+                    if file.startswith(sample) and file[len(sample):].startswith('.') and sample + '.' in file:
+                        if verbose:
+                            print(f"Found {sample} in {directory} as {file}.")
+                        # Update the result for this sample as True (found)
+                        results[sample] = True
+                        break  # Stop searching for this sample in this directory
+            # If the sample is found in this directory, no need to check other directories
+            if results[sample]:
+                break
+        
+        # If the sample is not found in any directory, move to the next sample
+    
+    # Return the results dictionary
+    return results
+        #         else:
+        #             continue  # Continue searching for other samples
+        #         break  # Stop searching for samples in other directories
+        # else:
+        #     continue  # Continue searching in other directories
+        # break  # Stop searching in other directories
+
+
 # Define function to list the content of a folder
 def list_folder_content(folder_path):
     try:
@@ -191,6 +241,7 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
     parser.add_argument('--log', '-l', help='Specify the log-filename which will be of the form [`todays_date`.`study_type`.slideLookup.`log`.log]. Optional.', default="histo_lookup")
     parser.add_argument('--copy', '-c', action='store_true', help='Copy files to copy-dir. Optional.')
     parser.add_argument('--copy_dir', '-cd', help='Directory to copy files. Optional.')
+    parser.add_argument('--check_only', '-co', action='store_true', help='Only check if a given (list of) sample(s) exist for a given (list of) stain(s). Optional.')
     ### WANT TO ADD THIS LATER ###
     ### parser.add_argument('--force', '-f', help='Overwrite files if they are already copied. Optional.')
     parser.add_argument('--verbose', '-v', action='store_true', help='Print extra information. Optional.')
@@ -238,8 +289,12 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
     log_file_path = os.path.join(log_folder, formatted_today + '.' + args.study_type + '.slideLookup.' + args.log + '.log')
 
     # Find the samples in the directories
-    print(f"\nLooking for the given samples.\n")
-    find_samples_in_directories(args.samples, args.study_type, args.dir, args.verbose, COPY_DIRECTORY)
+    if args.check_only:
+        print(f"Checking if the given (list of) sample(s) exist for the given (list of) stain(s).")
+        check_samples_exist_in_directories(args.samples, args.study_type, args.dir, args.verbose)
+    else:
+        print(f"Finding and copying the given (list of) sample(s) exist for the given (list of) stain(s).")
+        find_samples_in_directories(args.samples, args.study_type, args.dir, args.verbose, COPY_DIRECTORY)
 
     # Calculate the elapsed time in seconds
     elapsed_time = time.time() - start_time
@@ -252,37 +307,65 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
     # Print the script execution time in the desired format
     formatted_time = f"{hours} hours, {minutes} minutes, {seconds} seconds, {milliseconds} milliseconds"
 
-    # Write the statistics to a log file
-    try:
-        with open(log_file_path, 'w') as log_file:
+    # If check_only flag is set, don't proceed with copying and logging
+    if args.check_only:
+        print("Check for sample existence completed.")
+        # Write the statistics and results to a log file
+        try:
+            with open(log_file_path, 'w') as log_file:
+            # Write script information and conditions...
             log_file.write(f"+ {VERSION_NAME} v{VERSION} +")
             log_file.write(f"\nLookup WSI files in VirtuaSlides of the Athero-Express and AAA-Express Biobank Studies.\n")
             log_file.write(f"\nExecuted lookup using the following conditions:")
             log_file.write(f"\n> Study type: {args.study_type}")
             log_file.write(f"\n> Direcor(y/ies): {args.dir}")
             log_file.write(f"\n> Samples: {args.samples}\n")
-
-            ### WANT TO ADD THIS LATER ###
-            # log_file.write(f"\nFound the following samples:.\n")
-            # log_file.write(f" > sample - directory - filename") # {sample} - {directory} - {file}
-            # log_file.write(f"Total WSI samples found: X .\n") # {sum(study_numbers_count.values())}
-            # log_file.write(f"Total WSI samples search for: Y .\n") # {len(study_numbers_count)}
-            # log_file.write(f"Total WSI samples not found: Z .\n") # {len(study_numbers_count) - sum(study_numbers_count.values())}
-            
+            # Write the results of the check to the log
+            log_file.write(f"\n\nListing sample existence results:\n")
+            for sample, exists in check_results.items():
+                log_file.write(f"Sample {sample}: {'Exists.' if exists else 'Does not exist.'}\n")
+                # Add any other relevant information to the log...
             log_file.write(f"\nScript executed on {today_date.strftime('%Y-%m-%d')}. Total execution time was {formatted_time} ({time.time() - start_time:.2f} seconds).\n")
             log_file.write(f"\n+ {VERSION_NAME} v{VERSION}. {COPYRIGHT} +")
             log_file.write(f"\n{COPYRIGHT_TEXT}")
 
-            ### WANT TO ADD THIS LATER ###
-            # Print the statistics to the terminal
-            # if args.verbose:
-            #     print(f"Total WSI samples found: X .\n") # {sum(study_numbers_count.values())}
-            #     print(f"Total WSI samples search for: Y .\n") # {len(study_numbers_count)}
-            #     print(f"Total WSI samples not found: Z .\n") # {len(study_numbers_count) - sum(study_numbers_count.values())}
-        print(f"\nLog written to [{log_file_path}].")
+            print(f"\nLog written to [{log_file_path}].")
 
-    except Exception as e:
-        print(f"\nError: For some reason I couldn't write to the log file: {e}. Log was not written. ")
+        except Exception as e:
+            print(f"\nError: For some reason I couldn't write to the log file: {e}. Log was not written. ") 
+
+    else:
+        # Write the statistics to a log file
+        try:
+            with open(log_file_path, 'w') as log_file:
+                log_file.write(f"+ {VERSION_NAME} v{VERSION} +")
+                log_file.write(f"\nLookup WSI files in VirtuaSlides of the Athero-Express and AAA-Express Biobank Studies.\n")
+                log_file.write(f"\nExecuted lookup using the following conditions:")
+                log_file.write(f"\n> Study type: {args.study_type}")
+                log_file.write(f"\n> Direcor(y/ies): {args.dir}")
+                log_file.write(f"\n> Samples: {args.samples}\n")
+
+                ### WANT TO ADD THIS LATER ###
+                # log_file.write(f"\nFound the following samples:.\n")
+                # log_file.write(f" > sample - directory - filename") # {sample} - {directory} - {file}
+                # log_file.write(f"Total WSI samples found: X .\n") # {sum(study_numbers_count.values())}
+                # log_file.write(f"Total WSI samples search for: Y .\n") # {len(study_numbers_count)}
+                # log_file.write(f"Total WSI samples not found: Z .\n") # {len(study_numbers_count) - sum(study_numbers_count.values())}
+            
+                log_file.write(f"\nScript executed on {today_date.strftime('%Y-%m-%d')}. Total execution time was {formatted_time} ({time.time() - start_time:.2f} seconds).\n")
+                log_file.write(f"\n+ {VERSION_NAME} v{VERSION}. {COPYRIGHT} +")
+                log_file.write(f"\n{COPYRIGHT_TEXT}")
+
+                ### WANT TO ADD THIS LATER ###
+                # Print the statistics to the terminal
+                # if args.verbose:
+                #     print(f"Total WSI samples found: X .\n") # {sum(study_numbers_count.values())}
+                #     print(f"Total WSI samples search for: Y .\n") # {len(study_numbers_count)}
+                #     print(f"Total WSI samples not found: Z .\n") # {len(study_numbers_count) - sum(study_numbers_count.values())}
+            print(f"\nLog written to [{log_file_path}].")
+
+        except Exception as e:
+            print(f"\nError: For some reason I couldn't write to the log file: {e}. Log was not written. ")
 
     print(f"\nScript executed on {today_date.strftime('%Y-%m-%d')}. Total execution time was {formatted_time} (minus writing time).")
 
