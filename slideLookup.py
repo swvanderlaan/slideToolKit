@@ -256,7 +256,6 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
         for found_sample, directory, file in found_samples:
             print(f"- {found_sample} [ {directory} ] [ {file} ]")
 
-
     # Calculate the elapsed time in seconds
     elapsed_time = time.time() - start_time
     # Convert seconds to a timedelta object
