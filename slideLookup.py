@@ -299,7 +299,8 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
     # Find the samples in the directories
     if args.check_only:
         print(f"Checking if the given (list of) sample(s) exist for the given (list of) stain(s).")
-        check_samples_exist_in_directories(args.samples, args.study_type, args.dir, args.verbose)
+        # Call the function and store the results in a variable
+        check_only_results = check_samples_exist_in_directories(args.samples, args.study_type, args.dir, args.verbose)
     else:
         print(f"Finding and copying the given (list of) sample(s) exist for the given (list of) stain(s).")
         find_samples_in_directories(args.samples, args.study_type, args.dir, args.verbose, COPY_DIRECTORY)
