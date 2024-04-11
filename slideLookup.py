@@ -139,7 +139,7 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
     #         print(f"> Not copying, but simply collecting the found following samples:")
     #     for found_sample, directory, file in found_samples:
     #         print(f"- {found_sample} [ {directory} ] [ {file} ]")
-    return found_samples
+    # return found_samples
 
 # Define function to create directory to copy files to
 def create_copy_directory(copy_dir, verbose):
