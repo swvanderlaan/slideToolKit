@@ -138,6 +138,7 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
         if verbose:
             print(f"> Not copying, but simply collecting the found following samples:")
         for found_sample in found_samples:
+            sample, directory, file_name = found_sample
             print(f"- {found_sample} [ {directory} ] [ {file} ]")
     return found_samples
 
