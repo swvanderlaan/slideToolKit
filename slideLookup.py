@@ -108,7 +108,7 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
             if verbose:
                 print(f"Checking file: {file}")
             # Filter files by extension
-            if file.lower().endswith(('.TIF', '.ndpi')):
+            if file.lower().endswith(('.tif', '.ndpi')):
 
                 # Loop over the samples
                 for sample in samples:
