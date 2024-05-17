@@ -1,75 +1,81 @@
 Key,Value
 CellProfiler_Version,4.2.6
 ChannelType_Original,Color
-ImageSet_Zip_Dictionary,b'eG1sc2lvbjAiZW5jbz9PTUV0cDovd3dwZS9TbXMvT01FMjAtNkltYWdlIHJpaW5hbD48UGl4ZWxzIiBJT3JpZ2luYWwiIFNpemVDPSIxIiBTaXplVD0iMSJTPSIxIj48VGlmZkRhdGEgRmlyc3RDPSIwIiBGaXJzdFQ9IjAiIFo9IjAiYW49IjFVTmFtZT0iOmVyc3A0L29wZGVEL0xSeS80LkNEMzRYMC5ZMDAudGlzdWUuPjxpZmF0UGxhbmUgVGhlQz0iMCIgVGhlVD0iMCJaPSIwIj48IElvOi8vY3JvZXIub3JnaW1hZXRubm90YXRpb24vMjAxNC0wNDdDaGFubmVsLy0yIi8+PC9lPjwvUHhzPjwvdWR0aW5zTG9uZ0Fubm90YXRpb24gSUQ9ImluZm86Ly9jZWxscHJvZmlsZXIub3JnL2ltYWdlc2V0L2Fubm90YXRpb24vMjAxNC0wNC0xNy9DaGFubmVsLy0yIkRlc2NyaGFubi9EZXNjcmlwdGlvbj5WYWx1ZT48ZT48L3Rpb24+PFN0cnVjdHVyZWRBbm5vdGF0aW9ucz48Tw=='
+ImageSet_Zip_Dictionary,b'eG1sc2lvbjAiY284P09NRXRwOi93d29weS9TY2htcy9PTUUyMC02SW1hZ2UgcmlpbmFsPjxQaXhlbHMiIElPcmlnaW5hbCIgU2l6ZUM9IjEiIFNpemVUPSIxIlM9IjEiPjxUaWZmRGF0YSBGaXJzdEM9IjAiIEZpcnN0VD0iMCIgWj0iMCJhbm50PSIxVU5hbWU9IjplcnNwL0xvdXJhZS92ZWVjaHREb2N1bWVudGVuL1BtZXRlbmxpZGVyb0NEMzRScGUlMjAvdHN0MC5EWDQwMDAuWTAwLnRpZS4+PGlmYXRQbGFuZSBUaGVDPSIwIiBUaGVUPSIwIlo9IjAiPjwgSW86Ly9jZWxscHJvZmlsZXIub3JnaW1hZXRubm90YXRpb24vMjAxNC0wNC9DaGFubmVsLy0yIi8+PC9lPjwvUHhzPjwvdWR0aW5zTG9uZ0Fubm90YXRpb24gSUQ9ImluZm86Ly9jZWxscHJvZmlsZXIub3JnL2ltYWdlc2V0L2Fubm90YXRpb24vMjAxNC0wNC0xNy9DaGFubmVsLy0yImVzY3JoYW5uL0Rlc2NyaXB0aW9uPlZhbHVlPjxlPjwvdGlvbj48U3RydWN0dXJlZEFubm90YXRpb25zPjwvTw=='
 Pipeline_Pipeline,"CellProfiler Pipeline: http://www.cellprofiler.org
 Version:5
 DateRevision:426
 GitHash:
-ModuleCount:14
+ModuleCount:17
 HasImagePlaneDetails:False
 
-Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['To begin creating your project, use the Images module to compile a list of files and/or folders that you want to analyze. You can also specify a set of rules to include only the desired files in your selected folders.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['To begin creating your project, use the Images module to compile a list of files and/or folders that you want to analyze. You can also specify a set of rules to include only the desired files in your selected folders.', '']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     :
     Filter images?:Custom
     Select the rule criteria:or (file does contain "".normalized.tile.tissue.png"")
 
-Metadata:[module_num:2|svn_version:'Unknown'|variable_revision_number:6|show_window:False|notes:['The Metadata module optionally allows you to extract information describing your images (i.e, metadata) which will be stored along with your measurements. This information can be contained in the file name and/or location, or in an external file.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+Metadata:[module_num:2|svn_version:'Unknown'|variable_revision_number:6|show_window:False|notes:['The Metadata module optionally allows you to extract information describing your images (i.e, metadata) which will be stored along with your measurements. This information can be contained in the file name and/or location, or in an external file.', '']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Extract metadata?:Yes
     Metadata data type:Text
     Metadata types:{}
     Extraction method count:1
     Metadata extraction method:Extract from file/folder names
     Metadata source:File name
-    Regular expression to extract from file name:^(?P<NR>AE[0-9]{1,4}).?(?P<T_NUMBER>(UMC|T).*)?.(?P<STAIN>CD34|CD34_x\d+\_z\d+).?(?P<Date>[0-9]{4}[0-9]{2}[0-9]{2})?.(?P<Xcoord>(X[0-9]*)).(?P<Ycoord>(Y[0-9]*)).*$
+    Regular expression to extract from file name:^(?P<NR>AE[0-9]{1,4}).?(?P<T_NUMBER>(UMC|T).*)?.(?P<STAIN>CD34|CD34_x\d+\_z\d+).?(?P<R_NUMBER>[0-9]{1,10})?.?(?P<Date>[0-9]{4}[0-9]{2}[0-9]{2})?.(?P<Xcoord>(X[0-9]*)).(?P<Ycoord>(Y[0-9]*)).*$
     Regular expression to extract from folder name:(?P<Date>[0-9]{4}_[0-9]{2}_[0-9]{2})$
     Extract metadata from:Images matching a rule
-    Select the filtering criteria:or (file doesnot contain "".counted"") (file does contain "".normalized.tile.tissue.png"")
+    Select the filtering criteria:and (file doesnot contain "".counted"") (file does contain ""normalized.tile.tissue.png"")
     Metadata file location:Elsewhere...|
     Match file and image metadata:[]
     Use case insensitive matching?:No
     Metadata file name:
     Does cached metadata exist?:No
 
-NamesAndTypes:[module_num:3|svn_version:'Unknown'|variable_revision_number:8|show_window:False|notes:['The NamesAndTypes module allows you to assign a meaningful name to each image by which other modules will refer to it.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+NamesAndTypes:[module_num:3|svn_version:'Unknown'|variable_revision_number:8|show_window:False|notes:['The NamesAndTypes module allows you to assign a meaningful name to each image by which other modules will refer to it.', '']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Assign a name to:All images
     Select the image type:Color image
     Name to assign these images:Original
     Match metadata:[{'Original': 'Y'}, {'Original': 'X'}, {'Original': 'NR'}, {'Original': 'STAIN'}]
     Image set matching method:Metadata
     Set intensity range from:Image metadata
-    Assignments count:1
+    Assignments count:2
     Single images count:0
     Maximum intensity:255.0
     Process as 3D?:No
     Relative pixel spacing in X:1.0
     Relative pixel spacing in Y:1.0
     Relative pixel spacing in Z:1.0
-    Select the rule criteria:and (file doesnot contain ""ENTROPY_"") (file doesnot contain "".counted"") (file does contain "".tile.tissue.png"")
+    Select the rule criteria:or (file doesnot contain "".counted"") (file does contain "".tile.tissue.png"")
+    Name to assign these images:Original
+    Name to assign these objects:Cell
+    Select the image type:Color image
+    Set intensity range from:Image bit-depth
+    Maximum intensity:255.0
+    Select the rule criteria:or (file doesnot contain "".counted"") (file does contain "".tile.tissue.png"")
     Name to assign these images:Original
     Name to assign these objects:Cell
     Select the image type:Color image
     Set intensity range from:Image metadata
     Maximum intensity:255.0
 
-Groups:[module_num:4|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The Groups module optionally allows you to split your list of images into image subsets (groups) which will be processed independently of each other. Examples of groupings include screening batches, microtiter plates, time-lapse movies, etc.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+Groups:[module_num:4|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['The Groups module optionally allows you to split your list of images into image subsets (groups) which will be processed independently of each other. Examples of groupings include screening batches, microtiter plates, time-lapse movies, etc.', '']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Do you want to group your images?:No
     grouping metadata count:1
-    Metadata category:None
+    Metadata category:STAIN
 
-ColorToGray:[module_num:5|svn_version:'Unknown'|variable_revision_number:4|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+ColorToGray:[module_num:5|svn_version:'Unknown'|variable_revision_number:4|show_window:True|notes:['Create gray channel, this is used to find tissue (green)', 'Red is ussually a good channel for tissue.', 'RGB should also be fine.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:Original
     Conversion method:Combine
-    Image type:RGB
+    Image type:Channels
     Name the output image:OriginalGray
-    Relative weight of the red channel:1.0
-    Relative weight of the green channel:1.0
-    Relative weight of the blue channel:1.0
+    Relative weight of the red channel:1
+    Relative weight of the green channel:1
+    Relative weight of the blue channel:1
     Convert red to gray?:Yes
     Name the output image:OrigRed
-    Convert green to gray?:Yes
+    Convert green to gray?:No
     Name the output image:OrigGreen
-    Convert blue to gray?:Yes
+    Convert blue to gray?:No
     Name the output image:OrigBlue
     Convert hue to gray?:Yes
     Name the output image:OrigHue
@@ -79,19 +85,19 @@ ColorToGray:[module_num:5|svn_version:'Unknown'|variable_revision_number:4|show_
     Name the output image:OrigValue
     Channel count:1
     Channel number:1
-    Relative weight of the channel:1.0
+    Relative weight of the channel:1
     Image name:Channel1
 
-Smooth:[module_num:6|svn_version:'Unknown'|variable_revision_number:2|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+Smooth:[module_num:6|svn_version:'Unknown'|variable_revision_number:2|show_window:True|notes:['Smooth away the dust using a Gaussian Filter. This is used to find Tissue (green).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:OriginalGray
-    Name the output image:FilteredImage
+    Name the output image:ImageAfterSmooth
     Select smoothing method:Gaussian Filter
     Calculate artifact diameter automatically?:No
     Typical artifact diameter:20.0
     Edge intensity difference:0.1
     Clip intensities to 0 and 1?:Yes
 
-ImageMath:[module_num:7|svn_version:'Unknown'|variable_revision_number:5|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+ImageMath:[module_num:7|svn_version:'Unknown'|variable_revision_number:5|show_window:True|notes:['Invert the gray image, black becomes white, white becomes black.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Operation:Invert
     Raise the power of the result by:1.0
     Multiply the result by:1.0
@@ -100,24 +106,24 @@ ImageMath:[module_num:7|svn_version:'Unknown'|variable_revision_number:5|show_wi
     Set values greater than 1 equal to 1?:Yes
     Replace invalid values with 0?:Yes
     Ignore the image masks?:No
-    Name the output image:ImageAfterMath
+    Name the output image:Tissue_object
     Image or measurement?:Image
-    Select the first image:OriginalGray
+    Select the first image:ImageAfterSmooth
     Multiply the first image by:1.0
     Measurement:
     Image or measurement?:Image
-    Select the second image:
+    Select the second image:None
     Multiply the second image by:1.0
     Measurement:
 
-IdentifyPrimaryObjects:[module_num:8|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Identify total tissue area (green)']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input image:ImageAfterMath
-    Name the primary objects to be identified:Tissue_object
-    Typical diameter of objects, in pixel units (Min,Max):40,10000
+IdentifyPrimaryObjects:[module_num:8|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Identify total tissue area (green).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the input image:Tissue_object
+    Name the primary objects to be identified:Tissue
+    Typical diameter of objects, in pixel units (Min,Max):50,10000
     Discard objects outside the diameter range?:Yes
     Discard objects touching the border of the image?:No
-    Method to distinguish clumped objects:Intensity
-    Method to draw dividing lines between clumped objects:None
+    Method to distinguish clumped objects:None
+    Method to draw dividing lines between clumped objects:Intensity
     Size of smoothing filter:10
     Suppress local maxima that are closer than this minimum allowed distance:7.0
     Speed up by using lower-resolution image to find local maxima?:Yes
@@ -138,35 +144,35 @@ IdentifyPrimaryObjects:[module_num:8|svn_version:'Unknown'|variable_revision_num
     Two-class or three-class thresholding?:Two classes
     Log transform before thresholding?:No
     Assign pixels in the middle intensity class to the foreground or the background?:Foreground
-    Size of adaptive window:10
+    Size of adaptive window:50
     Lower outlier fraction:0.05
     Upper outlier fraction:0.05
     Averaging method:Mean
     Variance method:Standard deviation
-    # of deviations:2
-    Thresholding method:Otsu
+    # of deviations:2.0
+    Thresholding method:Minimum Cross-Entropy
 
-UnmixColors:[module_num:9|svn_version:'Unknown'|variable_revision_number:2|show_window:True|notes:['Split CD34 positive staining into separate channels (RED: LRP based CD34 staining; DAB for DAB based CD34 staining).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+UnmixColors:[module_num:9|svn_version:'Unknown'|variable_revision_number:2|show_window:True|notes:['Unmix the colors. Hematoxylin (blueish for nuclei) and Eosin (pinkish for tissue).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Stain count:2
     Select the input color image:Original
-    Name the output image:LPR
-    Stain:Fast red
-    Red absorbance:0.8301
-    Green absorbance:0.3273
-    Blue absorbance:0.2568
-    Name the output image:DAB
-    Stain:Feulgen
-    Red absorbance:0.5
-    Green absorbance:0.5
-    Blue absorbance:0.5
+    Name the output image:LRP
+    Stain:Custom
+    Red absorbance:0.05
+    Green absorbance:1.0
+    Blue absorbance:0.3
+    Name the output image:Hematoxylin
+    Stain:Custom
+    Red absorbance:0.9
+    Green absorbance:0.7
+    Blue absorbance:0.05
 
-IdentifyPrimaryObjects:[module_num:10|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Identify total CD34 area (red)']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input image:LPR
-    Name the primary objects to be identified:LPR_object
-    Typical diameter of objects, in pixel units (Min,Max):8,40
+IdentifyPrimaryObjects:[module_num:10|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Identify total CD66b stained area (brown).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the input image:LRP
+    Name the primary objects to be identified:LRP_object
+    Typical diameter of objects, in pixel units (Min,Max):10,10000
     Discard objects outside the diameter range?:Yes
     Discard objects touching the border of the image?:No
-    Method to distinguish clumped objects:Intensity
+    Method to distinguish clumped objects:None
     Method to draw dividing lines between clumped objects:Intensity
     Size of smoothing filter:10
     Suppress local maxima that are closer than this minimum allowed distance:7.0
@@ -180,35 +186,122 @@ IdentifyPrimaryObjects:[module_num:10|svn_version:'Unknown'|variable_revision_nu
     Threshold setting version:12
     Threshold strategy:Global
     Thresholding method:Otsu
-    Threshold smoothing scale:1.3488
-    Threshold correction factor:0.7
-    Lower and upper bounds on threshold:0.4,1.0
+    Threshold smoothing scale:1.3558
+    Threshold correction factor:1
+    Lower and upper bounds on threshold:0.68,1.0
     Manual threshold:0.0
     Select the measurement to threshold with:None
     Two-class or three-class thresholding?:Three classes
     Log transform before thresholding?:Yes
     Assign pixels in the middle intensity class to the foreground or the background?:Foreground
-    Size of adaptive window:10
+    Size of adaptive window:50
     Lower outlier fraction:0.05
     Upper outlier fraction:0.05
     Averaging method:Mean
     Variance method:Standard deviation
     # of deviations:2
-    Thresholding method:Otsu
+    Thresholding method:Minimum Cross-Entropy
 
-OverlayOutlines:[module_num:11|svn_version:'Unknown'|variable_revision_number:4|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+IdentifyPrimaryObjects:[module_num:11|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Identify total CD66b stained nuclei area (blue).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the input image:Hematoxylin
+    Name the primary objects to be identified:HE_Nuclei
+    Typical diameter of objects, in pixel units (Min,Max):6,12
+    Discard objects outside the diameter range?:Yes
+    Discard objects touching the border of the image?:No
+    Method to distinguish clumped objects:None
+    Method to draw dividing lines between clumped objects:Intensity
+    Size of smoothing filter:10
+    Suppress local maxima that are closer than this minimum allowed distance:7.0
+    Speed up by using lower-resolution image to find local maxima?:Yes
+    Fill holes in identified objects?:After both thresholding and declumping
+    Automatically calculate size of smoothing filter for declumping?:Yes
+    Automatically calculate minimum allowed distance between local maxima?:Yes
+    Handling of objects if excessive number of objects identified:Continue
+    Maximum number of objects:500
+    Use advanced settings?:Yes
+    Threshold setting version:12
+    Threshold strategy:Global
+    Thresholding method:Otsu
+    Threshold smoothing scale:0
+    Threshold correction factor:0
+    Lower and upper bounds on threshold:0.77,1.0
+    Manual threshold:0.0
+    Select the measurement to threshold with:None
+    Two-class or three-class thresholding?:Three classes
+    Log transform before thresholding?:Yes
+    Assign pixels in the middle intensity class to the foreground or the background?:Foreground
+    Size of adaptive window:50
+    Lower outlier fraction:0.05
+    Upper outlier fraction:0.05
+    Averaging method:Mean
+    Variance method:Standard deviation
+    # of deviations:2.1
+    Thresholding method:Minimum Cross-Entropy
+
+RelateObjects:[module_num:12|svn_version:'Unknown'|variable_revision_number:5|show_window:True|notes:['Determine Nuclei object children for found CD66b stained cells']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Parent objects:LRP_object
+    Child objects:HE_Nuclei
+    Calculate child-parent distances?:None
+    Calculate per-parent means for all child measurements?:No
+    Calculate distances to other parents?:No
+    Do you want to save the children with parents as a new object set?:No
+    Name the output object:RelateObjects
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+    Parent name:None
+
+FilterObjects:[module_num:13|svn_version:'Unknown'|variable_revision_number:10|show_window:True|notes:['Only keep CD66b cells that contain nuclei opbjects']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the objects to filter:HE_Nuclei
+    Name the output objects:FilterObjects
+    Select the filtering mode:Measurements
+    Select the filtering method:Limits
+    Select the objects that contain the filtered objects:None
+    Select the location of the rules or classifier file:Elsewhere...|
+    Rules or classifier file name:rules.txt
+    Class number:1
+    Measurement count:1
+    Additional object count:0
+    Assign overlapping child to:Both parents
+    Keep removed objects as a separate set?:No
+    Name the objects removed by the filter:RemovedObjects
+    Select the measurement to filter by:Parent_LRP_object
+    Filter using a minimum measurement value?:Yes
+    Minimum value:1
+    Filter using a maximum measurement value?:No
+    Maximum value:1.0
+    Allow fuzzy feature matching?:No
+
+OverlayOutlines:[module_num:14|svn_version:'Unknown'|variable_revision_number:4|show_window:True|notes:['Overlay outlines for all objects']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Display outlines on a blank image?:No
     Select image on which to display outlines:Original
     Name the output image:OrigOverlay
     Outline display mode:Color
     Select method to determine brightness of outlines:Max of image
     How to outline:Inner
-    Select outline color:#118002
-    Select objects to display:Tissue_object
-    Select outline color:#FB0207
-    Select objects to display:LPR_object
+    Select outline color:#FF0000
+    Select objects to display:Tissue
+    Select outline color:Green
+    Select objects to display:LRP_object
+    Select outline color:Blue
+    Select objects to display:HE_Nuclei
+    Select outline color:#FFFF00
+    Select objects to display:FilterObjects
 
-SaveImages:[module_num:12|svn_version:'Unknown'|variable_revision_number:16|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+SaveImages:[module_num:15|svn_version:'Unknown'|variable_revision_number:16|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:True]
     Select the type of image to save:Image
     Select the image to save:OrigOverlay
     Select method for constructing file names:From image filename
@@ -228,12 +321,12 @@ SaveImages:[module_num:12|svn_version:'Unknown'|variable_revision_number:16|show
     How to save the series:T (Time)
     Save with lossless compression?:No
 
-MeasureImageAreaOccupied:[module_num:13|svn_version:'Unknown'|variable_revision_number:5|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:True]
+MeasureImageAreaOccupied:[module_num:16|svn_version:'Unknown'|variable_revision_number:5|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Measure the area occupied by:Objects
-    Select binary images to measure:LPR_object_yellow, Tissue_object_black
-    Select object sets to measure:LPR_object, Tissue_object
+    Select binary images to measure:
+    Select object sets to measure:FilterObjects, HE_Nuclei, LRP_object, Tissue
 
-ExportToSpreadsheet:[module_num:14|svn_version:'Unknown'|variable_revision_number:13|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+ExportToSpreadsheet:[module_num:17|svn_version:'Unknown'|variable_revision_number:13|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:True]
     Select the column delimiter:Comma ("","")
     Add image metadata columns to your object data file?:Yes
     Add image file and folder names to your object data file?:No
@@ -241,7 +334,7 @@ ExportToSpreadsheet:[module_num:14|svn_version:'Unknown'|variable_revision_numbe
     Calculate the per-image mean values for object measurements?:Yes
     Calculate the per-image median values for object measurements?:Yes
     Calculate the per-image standard deviation values for object measurements?:Yes
-    Output file location:Default Output Folder|Desktop/CD34/cp_output
+    Output file location:Default Output Folder|
     Create a GenePattern GCT file?:Yes
     Select source of sample row name:Metadata
     Select the image to use as the identifier:None
@@ -257,4 +350,4 @@ ExportToSpreadsheet:[module_num:14|svn_version:'Unknown'|variable_revision_numbe
     File name:DATA.csv
     Use the object name for the file name?:Yes
 "
-Run_Timestamp,2024-04-02T15:43:57.701299
+Run_Timestamp,2024-05-16T16:33:15.687884

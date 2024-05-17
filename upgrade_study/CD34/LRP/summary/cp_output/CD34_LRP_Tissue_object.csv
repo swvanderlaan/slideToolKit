@@ -1,2 +1,0 @@
-ImageNumber,ObjectNumber,Metadata_Date,Metadata_FileLocation,Metadata_Frame,Metadata_NR,Metadata_STAIN,Metadata_Series,Metadata_T_NUMBER,Metadata_Xcoord,Metadata_Ycoord,Location_Center_X,Location_Center_Y,Location_Center_Z,Number_Object_Number
-1,1,nan,file:/Users/tpeters4/Desktop/CellProfiler%20upgrade_study/CD34/LRP/summary/AE4.T02-5712.CD34.X0.Y14000.normalized.tile.tissue.png,0,AE4,CD34,0,T02-5712,X0,Y14000,886.7732490830101,1457.0474531789384,0,1
