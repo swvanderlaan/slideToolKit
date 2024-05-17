@@ -178,14 +178,17 @@ else
 		# echo ${STAIN}
 		# echo "test: CD68"
 		if [ ${STAIN} == HE ]; then
-			# echo 'Study_number, Stain, STAIN_count_or_area_per_Total_Tissue_area, STAIN_count_or_area, Total_Tissue_area' > results.csv;
 			tee results.csv <<< 'Study_number, Stain, STAIN_count_or_area_per_Total_Tissue_area, STAIN_count_or_area, Total_Tissue_area'
+		elif [ ${STAIN} == SMA ]; then
+			tee results.csv <<< 'Study_number, Stain, STAIN_area_per_Total_Tissue_area, Total_DAB_object_area, Total_Tissue_area, Total_DAB_nuclei_object_area'
 		elif [ ${STAIN} == CD68 ]; then
-			# echo 'Study_number, Stain, Total_DAB_object_area, Total_DAB_nuclei_area, Total_HE_object_area, Total_HE_nuclei_area, Total_Tissue_area' > results.csv;
+			tee results.csv <<< 'Study_number, Stain, Total_DAB_object_area, Total_DAB_nuclei_area, Total_HE_object_area, Total_HE_nuclei_area, Total_Tissue_area'
+		elif [ ${STAIN} == CD66b ]; then
+			tee results.csv <<< 'Study_number, Stain, Total_Filtered_Objects, Total_Tissue_area'
+		elif [ ${STAIN} == CD34_DAB ]; then
 			tee results.csv <<< 'Study_number, Stain, Total_DAB_object_area, Total_DAB_nuclei_area, Total_HE_object_area, Total_HE_nuclei_area, Total_Tissue_area'
 		else
-			# echo 'Study_number, Stain STAIN_count_or_area_per_Total_Tissue_area, STAIN_count_or_area, Total_Tissue_area' > results.csv;
-			tee results.csv <<< 'Study_number, Stain STAIN_count_or_area_per_Total_Tissue_area, STAIN_count_or_area, Total_Tissue_area'
+			tee results.csv <<< 'Study_number, Stain, STAIN_count_or_area_per_Total_Tissue_area, STAIN_count_or_area, Total_Tissue_area'
 		fi
 	fi
 	
@@ -224,14 +227,14 @@ else
 
 
 	### OLD - These files are each a couple KB big, so gzipping doesnt really make sense
-	# echo "..... Gzipping list of files to process.";
-	# gzip -v $TILESDIR/${STUDY_NUM}*/files2cp.txt;
+	echo "..... Gzipping list of files to process.";
+	gzip -v $TILESDIR/${STUDY_NUM}.*/files2cp.txt;
 	# gzip -d $TILESDIR/${STUDY_NUM}*/files2cp.txt.gz;
 	
-	# echo "..... Gzipping result files.";
-	# gzip -vf cp_output/${STUDY_NUM}*/$STAIN*.gct;
+	echo "..... Gzipping result files.";
+	gzip -vf cp_output/${STUDY_NUM}/$STAIN*.gct;
 	# gzip -d cp_output/${STUDY_NUM}*/$STAIN*.gct.gz;
-	# gzip -vf cp_output/${STUDY_NUM}*/$STAIN*.csv;
+	gzip -vf cp_output/${STUDY_NUM}/$STAIN*.csv;
 	# gzip -d cp_output/${STUDY_NUM}*/$STAIN*.csv.gz;
 	
 	echo "..... Wrapping up this slideToolKit run successfully finished."

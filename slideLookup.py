@@ -4,15 +4,16 @@
     slideLookup
     This script is designed to perform a whole-slide image (WSI) sample lookup (`--samples`) in a directory or 
     a set of directories (`--dir`) containing WSI for a given `--study_type` (AE or AAA). By default, the script 
-    will look for the following directories: 
+    will only check for the existence of the given (list of) samples and look for the following stains: 
     [ "CD3", "CD34", "CD66b", "CD68", "EVG", "FIBRIN", "GLYCC", "HE", "SMA", "SR", "SR_POLARIZED" ]. 
     These can be changed with the `--dir` flag. By default a log file is written to the current working directory 
     and is of the form [`todays_date`.`study_type`.slideLookup.`log`.log]. 
 
     Optionally, the found files can be copied (`--copy`) to another directory (`--copy-dir`). By default, the
-    files will be copied to the following directory: [ ../VirtualSlides/Projects/histo_lookups ].  The `--log` flag will change the 
-    default output name of the log file, and `--copy-dir` will change the log-output directory too. It provides 
-    extra information (--verbose) if requested.
+    files will be copied to the following directory: [ ../VirtualSlides/Projects/histo_lookups ].  The `--log` flag 
+    will change the default output name of the log file, and `--copy-dir` will change the log-output directory too. 
+
+    It provides extra information (--verbose) if requested.
 
     Example usage:
     python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy --copy-dir /home/user/Desktop/ --verbose]
@@ -32,11 +33,13 @@
     --help, -h          Print help message. Optional.
 
 """
-
+# Change log
+# * v1.1.0 2024-04-11: Added the ability to list the existence of a given list of (a) sample(s) for a given list of (a) stain(s).
+# * v1.0.[0-4] 2024-03-20: Initial versions.
 # Version information
 VERSION_NAME = 'slideLookup'
-VERSION = '1.0.4'
-VERSION_DATE = '2024-03-20'
+VERSION = '1.1.0'
+VERSION_DATE = '2024-04-11'
 COPYRIGHT = 'Copyright 1979-2024. Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = f'\nThe MIT License (MIT). \n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and \nassociated documentation files (the "Software"), to deal in the Software without restriction, \nincluding without limitation the rights to use, copy, modify, merge, publish, distribute, \nsublicense, and/or sell copies of the Software, and to permit persons to whom the Software is \nfurnished to do so, subject to the following conditions: \n\nThe above copyright notice and this permission notice shall be included in all copies \nor substantial portions of the Software. \n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, \nINCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR \nPURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS \nBE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, \nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE \nOR OTHER DEALINGS IN THE SOFTWARE. \n\nReference: http://opensource.org.'
 
@@ -50,10 +53,10 @@ from datetime import datetime
 from datetime import timedelta
 
 # Define default directories
-DEFAULT_DIRECTORIES_EXTENDED = ["CD14", "CD3", "CD31", "CD34", "CD3_CD56_NKT", "CD42B", "CD66b", "CD68", "CD8",
+DEFAULT_STAINS_EXTENDED = ["CD14", "CD3", "CD31", "CD34", "CD3_CD56_NKT", "CD42B", "CD66b", "CD68", "CD8",
                                 "CD86", "EVG", "FIBRIN", "GLYCC", "HE", "HE-FIBRIN", "HHIPL1", "MPO", "MT", "SMA",
                                 "SR", "SR_POLARIZED", "VONWILLEBRANDFACTOR"]
-DEFAULT_DIRECTORIES = ["CD3", "CD34", "CD66b", "CD68", "EVG", "FIBRIN", "GLYCC", "HE", "SMA", "SR", "SR_POLARIZED"]
+DEFAULT_STAINS = ["CD3", "CD34", "CD66b", "CD68", "EVG", "FIBRIN", "GLYCC", "HE", "SMA", "SR", "SR_POLARIZED"]
 
 ### WANT TO ADD THIS LATER ###
 ### a more secure way to do this is to use the os.path.join() function
@@ -73,6 +76,9 @@ def get_lookup_directory(study_type, verbose):
 
 # Define function to find samples in directories
 def find_samples_in_directories(samples, study_type, directories, verbose, copy_dir):
+    # Initialize an empty list to store found samples
+    found_samples = []
+    
     # Create a set to store the copied files
     copied_files = set()
 
@@ -99,22 +105,20 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
         # Skip subdirectories by using listdir instead of os.walk
         # for root, dirs, files in os.walk(lookup_directory_walk):
         for file in os.listdir(lookup_directory_walk):
-
-            ### # Loop over the files - this is not needed as we skip subdirectories
-            # for file in files:
-
+            # if verbose:
+            #     print(f"Checking file: {file}")
             # Filter files by extension
-            if file.lower().endswith(('.TIF', '.ndpi')):
+            if file.lower().endswith(('.tif', '.ndpi')):
 
                 # Loop over the samples
                 for sample in samples:
                     # Check if the file matches exactly the sample name
                     if file.startswith(sample) and file[len(sample):].startswith('.') and sample + '.' in file:
-                    # Check if the sample is in the file
-                    #if sample in file:
+                    # Check if the sample is in the filename
                         if verbose:
                             print(f"Found {sample} in {directory} as {file}.")
-                        
+                        found_samples.append((sample, directory, file))
+
                         # Copy the file to the copy directory
                         if copy_dir:
                             # set the source to the file path
@@ -128,6 +132,7 @@ def find_samples_in_directories(samples, study_type, directories, verbose, copy_
                             else:
                                 if verbose:
                                     print(f"...already copied...")
+    return found_samples
 
 # Define function to create directory to copy files to
 def create_copy_directory(copy_dir, verbose):
@@ -169,15 +174,18 @@ def main():
 
 This script is designed to perform a whole-slide image (WSI) sample lookup (`--samples`) in a directory or 
 a set of directories (`--dir`) containing WSI for a given `--study_type` (AE or AAA). By default, the script 
-will look for the following directories: 
-[ {DEFAULT_DIRECTORIES} ]. 
-These can be changed with the `--dir` flag. By default a log file is written to the current working directory 
-and is of the form [`todays_date`.`study_type`.slideLookup.`log`.log]. 
+will only check for the existence of the given (list of) samples and look for the following stains: 
+[ {DEFAULT_STAINS} ]. 
+These can be changed with the `--dir` flag. 
+
+By default a log file is written to the current working directory and is of the form 
+[`todays_date`.`study_type`.slideLookup.`log`.log]. 
 
 Optionally, the found files can be copied (`--copy`) to another directory (`--copy-dir`). By default, the
 files will be copied to the following directory: [ {DEFAULT_COPY_DIRECTORY} ].  The `--log` flag will change the 
-default output name of the log file, and `--copy-dir` will change the log-output directory too. It provides 
-extra information (--verbose) if requested.
+default output name of the log file, and `--copy-dir` will change the log-output directory too. 
+
+It provides extra information (--verbose) if requested.
 
 Example usage:
 python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy --copy-dir /home/user/Desktop/ --verbose]
@@ -186,7 +194,7 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
 + {VERSION_NAME} v{VERSION}. {COPYRIGHT} \n{COPYRIGHT_TEXT}+''', 
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--samples', '-s', nargs='+', required=True, help='List of whole-slide image (WSI) samples, e.g. AE4211, AE3422. Required.')
-    parser.add_argument('--dir', '-d', nargs='+', help='List of directories, e.g. CD14 CD3. Required.', default=DEFAULT_DIRECTORIES)
+    parser.add_argument('--dir', '-d', nargs='+', help='List of directories, e.g. CD14 CD3. Required.', default=DEFAULT_STAINS)
     parser.add_argument('--study_type', '-t', required=True, help='Specify the study type prefix, e.g., AE or AAA (no other option is possible). Required.')
     parser.add_argument('--log', '-l', help='Specify the log-filename which will be of the form [`todays_date`.`study_type`.slideLookup.`log`.log]. Optional.', default="histo_lookup")
     parser.add_argument('--copy', '-c', action='store_true', help='Copy files to copy-dir. Optional.')
@@ -229,7 +237,7 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
             print(f"\nNotice: You set to copy WSI files, but did not specify a directory to copy the files to; setting it to default ({COPY_DIRECTORY}).")
     else:
         COPY_DIRECTORY = None
-        log_folder = os.path.join(os.getcwd(), args.study_type + '_' + formatted_today + '_slideLookup') # os.getcwd() 
+        log_folder = os.path.join(os.getcwd()) # os.getcwd() 
         print(f"\nNotice: You did not specify the copy argument. So we are only performing the lookup without copying.")
         if args.verbose:
             print(f">>> Directory was not set ({COPY_DIRECTORY}) <<<\n")
@@ -237,9 +245,17 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
     # Set the log file path
     log_file_path = os.path.join(log_folder, formatted_today + '.' + args.study_type + '.slideLookup.' + args.log + '.log')
 
-    # Find the samples in the directories
-    print(f"\nLooking for the given samples.\n")
-    find_samples_in_directories(args.samples, args.study_type, args.dir, args.verbose, COPY_DIRECTORY)
+    print(f"Finding the given (list of) sample(s) exist for the given (list of) stain(s).")
+    if args.copy:
+        print(f"> Copying the found files to the copy directory.")
+        copied_files = find_samples_in_directories(args.samples, args.study_type, args.dir, args.verbose, COPY_DIRECTORY)
+        for copied_file in copied_files:
+            print(f"- {copied_file}")
+    else:
+        print(f"> Not copying, but simply collecting the found following samples:")
+        found_samples = find_samples_in_directories(args.samples, args.study_type, args.dir, args.verbose, COPY_DIRECTORY)
+        for found_sample, directory, file in found_samples:
+            print(f"- {found_sample} [ {directory} ] [ {file} ]")
 
     # Calculate the elapsed time in seconds
     elapsed_time = time.time() - start_time
@@ -262,8 +278,14 @@ python slideLookup.py --samples AE4211 AE3422  --dir CD14 CD3 [options: --copy -
             log_file.write(f"\n> Direcor(y/ies): {args.dir}")
             log_file.write(f"\n> Samples: {args.samples}\n")
 
+            if args.copy:
+                log_file.write("\nFound and copied the following samples:\n")
+            else: 
+                log_file.write("\nFound the following samples:\n")
+            for found_sample, directory, file in found_samples:
+                # these are also the copied files in case of args.copy
+                log_file.write(f"- {found_sample} [ {directory} ] [ {file} ]\n")
             ### WANT TO ADD THIS LATER ###
-            # log_file.write(f"\nFound the following samples:.\n")
             # log_file.write(f" > sample - directory - filename") # {sample} - {directory} - {file}
             # log_file.write(f"Total WSI samples found: X .\n") # {sum(study_numbers_count.values())}
             # log_file.write(f"Total WSI samples search for: Y .\n") # {len(study_numbers_count)}
