@@ -1,12 +1,12 @@
 Key,Value
 CellProfiler_Version,4.2.6
 ChannelType_Original,Color
-ImageSet_Zip_Dictionary,b'eG1sc2lvbjAiZW5jbz9PTUV0cDovd3dwZS9TbXMvT01FMjAtSW1hZ2UgcmlpbmFsPjxQaXhlbHMiIElPcmlnaW5hbCIgU2l6ZUM9IjEiIFNpemVUPSIxIlM9IjEiPjxUaWZmRGF0YSBGaXJzdEM9IjAiIEZpcnN0VD0iMCIgWj0iMCJhbj0iMVVOYW1lPSI6ZXJzcG9wZGVEeS8wLkNENjguMjAxOFgwMDAuWTAwLnRpc3VlLj48aWZhdFBsYW5lIFRoZUM9IjAiIFRoZVQ9IjAiWj0iMCI+PCBJbzovL2Nyb2VyLm9yZ2ltYWV0bm5vdGF0aW9uLzIwMTQtMDQxN0NoYW5uZWwvLTIiLz48L2U+PC9QeHM+PC91ZHRpbnNMb25nQW5ub3RhdGlvbiBJRD0iaW5mbzovL2NlbGxwcm9maWxlci5vcmcvaW1hZ2VzZXQvYW5ub3RhdGlvbi8yMDE0LTA0LTE3L0NoYW5uZWwvLTIiRGVzY3JoYW5uL0Rlc2NyaXB0aW9uPlZhbHVlPjxlPjwvdGlvbj48U3RydWN0dXJlZEFubm90YXRpb25zPjxP'
+ImageSet_Zip_Dictionary,b'eG1sc2lvbjAiY28/T01FdHA6L3d3b3BlL1NjaG1zL09NRTIwLUltYWdlIHJpaW5hbD48UGl4ZWxzIiBJT3JpZ2luYWwiIFNpemVDPSIxIiBTaXplVD0iMSJTPSIxIj48VGlmZkRhdGEgRmlyc3RDPSIwIiBGaXJzdFQ9IjAiIFo9IjAiYW5udD0iMVVOYW1lPSI6ZXJzcC9Mb3VkdmVlY2h0RG9jdW1lbnRlbi9QJTIwdW1ldGVubGlkZVByb3JheS9DRGFyeS8wLkNENjguMjAxOFgwMDAuWTAwLnRpc3VlLj48aWZhdFBsYW5lIFRoZUM9IjAiIFRoZVQ9IjAiWj0iMCI+PCBJbzovL2Nyb2VyLm9yZ2ltYWV0bm5vdGF0aW9uLzIwMTQtMDQxNy9DaGFubmVsLy0yIi8+PC9lPjwvUHhzPjwvdWR0aW5zTG9uZ0Fubm90YXRpb24gSUQ9ImluZm86Ly9jZWxscHJvZmlsZXIub3JnL2ltYWdlc2V0L2Fubm90YXRpb24vMjAxNC0wNC0xNy9DaGFubmVsLy0yImVzY3JoYW5uL0Rlc2NyaXB0aW9uPlZhbHVlPjxlPjwvdGlvbj48U3RydWN0dXJlZEFubm90YXRpb25zPjwvTw=='
 Pipeline_Pipeline,"CellProfiler Pipeline: http://www.cellprofiler.org
 Version:5
 DateRevision:426
 GitHash:
-ModuleCount:18
+ModuleCount:17
 HasImagePlaneDetails:False
 
 Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['To begin creating your project, use the Images module to compile a list of files and/or folders that you want to analyze. You can also specify a set of rules to include only the desired files in your selected folders.', '', 'Settings converted from legacy pipeline.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
@@ -21,7 +21,7 @@ Metadata:[module_num:2|svn_version:'Unknown'|variable_revision_number:6|show_win
     Extraction method count:1
     Metadata extraction method:Extract from file/folder names
     Metadata source:File name
-    Regular expression to extract from file name:^(?P<NR>AE[0-9]{1,4}).?(?P<T_NUMBER>(UMC|T).*)?.(?P<STAIN>CD68|CD68_x\d+\_z\d+).?(?P<Date>[0-9]{4}[0-9]{2}[0-9]{2})?.(?P<Xcoord>(X[0-9]*)).(?P<Ycoord>(Y[0-9]*)).*$
+    Regular expression to extract from file name:^(?P<NR>AE[0-9]{1,4}).?(?P<T_NUMBER>(UMC|T).*)?.(?P<STAIN>CD68|CD68_x\d+\_z\d+).?(?P<R_NUMBER>[0-9]{1,10})?.?(?P<Date>[0-9]{4}[0-9]{2}[0-9]{2})?.(?P<Xcoord>(X[0-9]*)).(?P<Ycoord>(Y[0-9]*)).*$
     Regular expression to extract from folder name:(?P<Date>[0-9]{4}_[0-9]{2}_[0-9]{2})$
     Extract metadata from:Images matching a rule
     Select the filtering criteria:or (file doesnot contain "".counted"") (file does contain "".normalized.tile.tissue.png"")
@@ -97,7 +97,7 @@ ImageMath:[module_num:6|svn_version:'Unknown'|variable_revision_number:5|show_wi
     Set values greater than 1 equal to 1?:Yes
     Replace invalid values with 0?:Yes
     Ignore the image masks?:No
-    Name the output image:Tissue_object
+    Name the output image:OriginalGray_Inverted
     Image or measurement?:Image
     Select the first image:OriginalGray
     Multiply the first image by:1.0
@@ -107,7 +107,16 @@ ImageMath:[module_num:6|svn_version:'Unknown'|variable_revision_number:5|show_wi
     Multiply the second image by:1.0
     Measurement:
 
-UnmixColors:[module_num:7|svn_version:'Unknown'|variable_revision_number:2|show_window:True|notes:['Split HE and DAB into separate channels']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+Smooth:[module_num:7|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the input image:OriginalGray_Inverted
+    Name the output image:Smooth_Inverted
+    Select smoothing method:Gaussian Filter
+    Calculate artifact diameter automatically?:Yes
+    Typical artifact diameter:16.0
+    Edge intensity difference:0.1
+    Clip intensities to 0 and 1?:Yes
+
+UnmixColors:[module_num:8|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:['Split HE and DAB into separate channels']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Stain count:2
     Select the input color image:Original
     Name the output image:DAB
@@ -117,12 +126,12 @@ UnmixColors:[module_num:7|svn_version:'Unknown'|variable_revision_number:2|show_
     Blue absorbance:0.666181
     Name the output image:Hematoxylin
     Stain:Hematoxylin
-    Red absorbance:0.627888
-    Green absorbance:0.685713
-    Blue absorbance:0.368178
+    Red absorbance:0.85
+    Green absorbance:0.7
+    Blue absorbance:0.25
 
-IdentifyPrimaryObjects:[module_num:8|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Find tissue using the grayscale image.', 'White is background, non-white is foreground.', 'Diameter is choosen after some testing.', 'Using theshold method is based on trial and error, MoG Global does a good job of removing dark shaded areas in contrast to Threshold.', 'From now on, outlined foreground is called Tissue areas (black).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input image:Tissue_object
+IdentifyPrimaryObjects:[module_num:9|svn_version:'Unknown'|variable_revision_number:15|show_window:False|notes:['Find tissue using the grayscale image.', 'White is background, non-white is foreground.', 'Diameter is choosen after some testing.', 'Using theshold method is based on trial and error, MoG Global does a good job of removing dark shaded areas in contrast to Threshold.', 'From now on, outlined foreground is called Tissue areas (black).']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the input image:Smooth_Inverted
     Name the primary objects to be identified:Tissue_object
     Typical diameter of objects, in pixel units (Min,Max):40,10000
     Discard objects outside the diameter range?:Yes
@@ -157,50 +166,14 @@ IdentifyPrimaryObjects:[module_num:8|svn_version:'Unknown'|variable_revision_num
     # of deviations:2
     Thresholding method:Otsu
 
-IdentifyPrimaryObjects:[module_num:9|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Identify Hematoxylin (nuclei) positive areas (green)']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input image:Hematoxylin
-    Name the primary objects to be identified:HE_object
-    Typical diameter of objects, in pixel units (Min,Max):8,10000
-    Discard objects outside the diameter range?:No
-    Discard objects touching the border of the image?:No
-    Method to distinguish clumped objects:None
-    Method to draw dividing lines between clumped objects:Intensity
-    Size of smoothing filter:10
-    Suppress local maxima that are closer than this minimum allowed distance:7
-    Speed up by using lower-resolution image to find local maxima?:Yes
-    Fill holes in identified objects?:After both thresholding and declumping
-    Automatically calculate size of smoothing filter for declumping?:Yes
-    Automatically calculate minimum allowed distance between local maxima?:Yes
-    Handling of objects if excessive number of objects identified:Continue
-    Maximum number of objects:500
-    Use advanced settings?:Yes
-    Threshold setting version:12
-    Threshold strategy:Global
-    Thresholding method:Otsu
-    Threshold smoothing scale:1.3488
-    Threshold correction factor:0
-    Lower and upper bounds on threshold:0.4,1.0
-    Manual threshold:0.0
-    Select the measurement to threshold with:None
-    Two-class or three-class thresholding?:Three classes
-    Log transform before thresholding?:Yes
-    Assign pixels in the middle intensity class to the foreground or the background?:Foreground
-    Size of adaptive window:10
-    Lower outlier fraction:0.05
-    Upper outlier fraction:0.05
-    Averaging method:Mean
-    Variance method:Standard deviation
-    # of deviations:2
-    Thresholding method:Default
-
-IdentifyPrimaryObjects:[module_num:10|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Identify DAB positive areas (yellow)']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+IdentifyPrimaryObjects:[module_num:10|svn_version:'Unknown'|variable_revision_number:15|show_window:False|notes:['Identify DAB positive areas (yellow)']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:DAB
     Name the primary objects to be identified:DAB_object
     Typical diameter of objects, in pixel units (Min,Max):8,10000
     Discard objects outside the diameter range?:Yes
     Discard objects touching the border of the image?:No
     Method to distinguish clumped objects:None
-    Method to draw dividing lines between clumped objects:Shape
+    Method to draw dividing lines between clumped objects:Intensity
     Size of smoothing filter:10
     Suppress local maxima that are closer than this minimum allowed distance:7
     Speed up by using lower-resolution image to find local maxima?:Yes
@@ -214,8 +187,8 @@ IdentifyPrimaryObjects:[module_num:10|svn_version:'Unknown'|variable_revision_nu
     Threshold strategy:Global
     Thresholding method:Otsu
     Threshold smoothing scale:1.3488
-    Threshold correction factor:0
-    Lower and upper bounds on threshold:0.6,1.0
+    Threshold correction factor:1
+    Lower and upper bounds on threshold:0.67,1.0
     Manual threshold:0.0
     Select the measurement to threshold with:None
     Two-class or three-class thresholding?:Three classes
@@ -229,65 +202,13 @@ IdentifyPrimaryObjects:[module_num:10|svn_version:'Unknown'|variable_revision_nu
     # of deviations:2
     Thresholding method:Default
 
-MaskImage:[module_num:11|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:['Only analyse Nuclei (red) in the previously defined DAB tissue (yellow)']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input image:DAB
-    Name the output image:DAB_object_mask
-    Use objects or an image as a mask?:Objects
-    Select object for mask:DAB_object
-    Select image for mask:DAB
-    Invert the mask?:No
-
-MaskImage:[module_num:12|svn_version:'Unknown'|variable_revision_number:3|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+IdentifyPrimaryObjects:[module_num:11|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Find DAB positive nuclei (red) within masked image (green)']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Select the input image:Hematoxylin
-    Name the output image:HE_object_mask
-    Use objects or an image as a mask?:Objects
-    Select object for mask:HE_object
-    Select image for mask:DAB
-    Invert the mask?:No
-
-IdentifyPrimaryObjects:[module_num:13|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Find DAB positive nuclei (red) within masked image (green)']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input image:DAB_object_mask
-    Name the primary objects to be identified:nuclei_DAB
-    Typical diameter of objects, in pixel units (Min,Max):8,40
-    Discard objects outside the diameter range?:Yes
-    Discard objects touching the border of the image?:No
-    Method to distinguish clumped objects:Shape
-    Method to draw dividing lines between clumped objects:Intensity
-    Size of smoothing filter:10
-    Suppress local maxima that are closer than this minimum allowed distance:7
-    Speed up by using lower-resolution image to find local maxima?:Yes
-    Fill holes in identified objects?:After both thresholding and declumping
-    Automatically calculate size of smoothing filter for declumping?:Yes
-    Automatically calculate minimum allowed distance between local maxima?:Yes
-    Handling of objects if excessive number of objects identified:Continue
-    Maximum number of objects:500
-    Use advanced settings?:Yes
-    Threshold setting version:12
-    Threshold strategy:Global
-    Thresholding method:Otsu
-    Threshold smoothing scale:1.3488
-    Threshold correction factor:1
-    Lower and upper bounds on threshold:0.85,1.0
-    Manual threshold:0.0
-    Select the measurement to threshold with:None
-    Two-class or three-class thresholding?:Three classes
-    Log transform before thresholding?:Yes
-    Assign pixels in the middle intensity class to the foreground or the background?:Foreground
-    Size of adaptive window:10
-    Lower outlier fraction:0.05
-    Upper outlier fraction:0.05
-    Averaging method:Mean
-    Variance method:Standard deviation
-    # of deviations:2
-    Thresholding method:Default
-
-IdentifyPrimaryObjects:[module_num:14|svn_version:'Unknown'|variable_revision_number:15|show_window:True|notes:['Find HE positive nuclei (blue) within masked image (green)']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input image:HE_object_mask
     Name the primary objects to be identified:nuclei_HE
-    Typical diameter of objects, in pixel units (Min,Max):8,40
+    Typical diameter of objects, in pixel units (Min,Max):6,22
     Discard objects outside the diameter range?:Yes
     Discard objects touching the border of the image?:No
-    Method to distinguish clumped objects:Shape
+    Method to distinguish clumped objects:None
     Method to draw dividing lines between clumped objects:Intensity
     Size of smoothing filter:10
     Suppress local maxima that are closer than this minimum allowed distance:7
@@ -301,9 +222,9 @@ IdentifyPrimaryObjects:[module_num:14|svn_version:'Unknown'|variable_revision_nu
     Threshold setting version:12
     Threshold strategy:Global
     Thresholding method:Otsu
-    Threshold smoothing scale:1.3488
-    Threshold correction factor:1
-    Lower and upper bounds on threshold:0.7,1.0
+    Threshold smoothing scale:0
+    Threshold correction factor:0
+    Lower and upper bounds on threshold:0.81,1.0
     Manual threshold:0.0
     Select the measurement to threshold with:None
     Two-class or three-class thresholding?:Three classes
@@ -317,7 +238,38 @@ IdentifyPrimaryObjects:[module_num:14|svn_version:'Unknown'|variable_revision_nu
     # of deviations:2
     Thresholding method:Default
 
-OverlayOutlines:[module_num:15|svn_version:'Unknown'|variable_revision_number:4|show_window:True|notes:['The next outline is ontop of the previous one.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+RelateObjects:[module_num:12|svn_version:'Unknown'|variable_revision_number:5|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Parent objects:DAB_object
+    Child objects:nuclei_HE
+    Calculate child-parent distances?:None
+    Calculate per-parent means for all child measurements?:No
+    Calculate distances to other parents?:No
+    Do you want to save the children with parents as a new object set?:No
+    Name the output object:RelateObjects
+    Parent name:None
+
+FilterObjects:[module_num:13|svn_version:'Unknown'|variable_revision_number:10|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the objects to filter:nuclei_HE
+    Name the output objects:FilterObjects
+    Select the filtering mode:Measurements
+    Select the filtering method:Limits
+    Select the objects that contain the filtered objects:None
+    Select the location of the rules or classifier file:Elsewhere...|
+    Rules or classifier file name:rules.txt
+    Class number:1
+    Measurement count:1
+    Additional object count:0
+    Assign overlapping child to:Both parents
+    Keep removed objects as a separate set?:No
+    Name the objects removed by the filter:RemovedObjects
+    Select the measurement to filter by:Parent_DAB_object
+    Filter using a minimum measurement value?:Yes
+    Minimum value:1.0
+    Filter using a maximum measurement value?:No
+    Maximum value:1.0
+    Allow fuzzy feature matching?:No
+
+OverlayOutlines:[module_num:14|svn_version:'Unknown'|variable_revision_number:4|show_window:True|notes:['The next outline is ontop of the previous one.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Display outlines on a blank image?:No
     Select image on which to display outlines:Original
     Name the output image:OrigOverlay
@@ -325,17 +277,15 @@ OverlayOutlines:[module_num:15|svn_version:'Unknown'|variable_revision_number:4|
     Select method to determine brightness of outlines:Max of image
     How to outline:Inner
     Select outline color:Blue
-    Select objects to display:nuclei_HE
-    Select outline color:#44FF09
-    Select objects to display:HE_object
-    Select outline color:Red
-    Select objects to display:nuclei_DAB
-    Select outline color:#FEFF0C
     Select objects to display:DAB_object
+    Select outline color:Red
+    Select objects to display:nuclei_HE
     Select outline color:#1A6007
     Select objects to display:Tissue_object
+    Select outline color:Yellow
+    Select objects to display:FilterObjects
 
-SaveImages:[module_num:16|svn_version:'Unknown'|variable_revision_number:16|show_window:True|notes:['Save outlined images', 'These image are usually not used for further analysis and can be stored in lossy JPEG if wanted.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+SaveImages:[module_num:15|svn_version:'Unknown'|variable_revision_number:16|show_window:True|notes:['Save outlined images', 'These image are usually not used for further analysis and can be stored in lossy JPEG if wanted.']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:True]
     Select the type of image to save:Image
     Select the image to save:OrigOverlay
     Select method for constructing file names:From image filename
@@ -355,12 +305,12 @@ SaveImages:[module_num:16|svn_version:'Unknown'|variable_revision_number:16|show
     How to save the series:T (Time)
     Save with lossless compression?:No
 
-MeasureImageAreaOccupied:[module_num:17|svn_version:'Unknown'|variable_revision_number:5|show_window:True|notes:['Measure tissue (black), HE nuclei (blue) and DAB area (yellow) and nuclei (red) area']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+MeasureImageAreaOccupied:[module_num:16|svn_version:'Unknown'|variable_revision_number:5|show_window:True|notes:['Measure tissue (black), HE nuclei (blue) and DAB area (yellow) and nuclei (red) area']|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Measure the area occupied by:Objects
     Select binary images to measure:DAB, DAB_object_mask, HE_object_mask, Hematoxylin, Tissue_object
-    Select object sets to measure:DAB_object, HE_object, Tissue_object, nuclei_DAB, nuclei_HE
+    Select object sets to measure:DAB_object, FilterObjects, Tissue_object, nuclei_HE
 
-ExportToSpreadsheet:[module_num:18|svn_version:'Unknown'|variable_revision_number:13|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:True]
+ExportToSpreadsheet:[module_num:17|svn_version:'Unknown'|variable_revision_number:13|show_window:True|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:True]
     Select the column delimiter:Comma ("","")
     Add image metadata columns to your object data file?:Yes
     Add image file and folder names to your object data file?:No
@@ -384,4 +334,4 @@ ExportToSpreadsheet:[module_num:18|svn_version:'Unknown'|variable_revision_numbe
     File name:DATA.csv
     Use the object name for the file name?:Yes
 "
-Run_Timestamp,2024-02-28T14:30:29.040505
+Run_Timestamp,2024-05-16T11:23:13.238707
