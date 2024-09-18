@@ -30,14 +30,14 @@ df = fread(input = paste0(args[1], "_", args[2]),
 # parse the data 
 # specific for a stain
 # VAL = sum(df$AreaOccupied_AreaOccupied_NKT_OBJ) / sum(df$AreaOccupied_TotalArea_NKT_OBJ)
-VAL = sum(df$AreaOccupied_AreaOccupied_DAB_object) / sum(df$AreaOccupied_AreaOccupied_Tissue_object)
+VAL = sum(df$Count_FilterObjects)
+VAL1 = sum(df$Count_nuclei_HE)
 VAL2 = sum(df$AreaOccupied_AreaOccupied_DAB_object)
-VAL3 = sum(df$AreaOccupied_AreaOccupied_Tissue_object)
-VAL4 = sum(df$AreaOccupied_AreaOccupied_nuclei_DAB)
+VAL3 = sum(df$AreaOccupied_AreaOccupied_nuclei_HE)
+VAL4 = sum(df$AreaOccupied_AreaOccupied_Tissue_object)
 # original code
 # VAL = sum(df$AreaOccupied_AreaOccupied_DAB_object_yellow) / sum(df$AreaOccupied_AreaOccupied_Tissue_object_green)
-if (is.na(VAL)) {VAL=0}
-cat( VAL, VAL2, VAL3, VAL4, sep = ", " )
+cat( VAL, VAL1, VAL2, VAL3, VAL4, sep = ", " )
 
 # cat("\nSession information\n")
 # print(version)

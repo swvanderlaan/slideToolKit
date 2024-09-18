@@ -153,7 +153,7 @@ TILESDIR="$5" # Depends on arg6
 ### You need to also have the conda init lines in your .bash_profile/.bashrc file
 echo "..... > loading required anaconda environment containing the CellProfiler installation..."
 eval "$(conda shell.bash hook)"
-conda activate cp4
+conda activate cp427
 echo Loaded conda environment: $CONDA_PREFIX
 echo ""
 
@@ -180,13 +180,15 @@ else
 		if [ ${STAIN} == HE ]; then
 			tee results.csv <<< 'Study_number, Stain, STAIN_count_or_area_per_Total_Tissue_area, STAIN_count_or_area, Total_Tissue_area'
 		elif [ ${STAIN} == SMA ]; then
-			tee results.csv <<< 'Study_number, Stain, STAIN_area_per_Total_Tissue_area, Total_DAB_object_area, Total_Tissue_area, Total_DAB_nuclei_object_area'
+			tee results.csv <<< 'Study_number, Stain, FilterObjects, HE_nuclei_count, Total_DAB_object_area, Total_HE_nuclei_area, Total_Tissue_area'
 		elif [ ${STAIN} == CD68 ]; then
-			tee results.csv <<< 'Study_number, Stain, Total_DAB_object_area, Total_DAB_nuclei_area, Total_HE_object_area, Total_HE_nuclei_area, Total_Tissue_area'
+			tee results.csv <<< 'Study_number, Stain, FilterObjects, HE_nuclei_count, Total_DAB_object_area, Total_HE_nuclei_area, Total_Tissue_area'
 		elif [ ${STAIN} == CD66b ]; then
 			tee results.csv <<< 'Study_number, Stain, Total_Filtered_Objects, Total_Tissue_area'
 		elif [ ${STAIN} == CD34_DAB ]; then
-			tee results.csv <<< 'Study_number, Stain, Total_DAB_object_area, Total_DAB_nuclei_area, Total_HE_object_area, Total_HE_nuclei_area, Total_Tissue_area'
+			tee results.csv <<< 'Study_number, Stain, FilterObjects, HE_nuclei_count, Total_DAB_object_area, Total_HE_nuclei_area, Total_Tissue_area'
+		elif [ ${STAIN} == CD34_LRP ]; then
+			tee results.csv <<< 'Study_number, Stain, FilterObjects, HE_nuclei_count, Total_LRP_object_area, Total_HE_nuclei_area, Total_Tissue_area'
 		else
 			tee results.csv <<< 'Study_number, Stain, STAIN_count_or_area_per_Total_Tissue_area, STAIN_count_or_area, Total_Tissue_area'
 		fi

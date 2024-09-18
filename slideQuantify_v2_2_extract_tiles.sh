@@ -149,7 +149,7 @@ echo ""
 echo "..... > loading required anaconda environment containing the CellProfiler installation..."
 module load mambaforge3
 eval "$(conda shell.bash hook)"
-conda activate cp4
+conda activate cp427
 echo Loaded conda environment: $CONDA_PREFIX
 echo ""
 
@@ -180,7 +180,14 @@ if [ -d $SAVE_DIR/$NR.*/ ];
 then
 	echo "$NR already has extracted tiles"
 else
+    # if [ -f $DATA_DIR/_ndpi_extra/$NR.*.ndpi ]; then
+    # 	echo "NDPI of $NR found."
+	# 	python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi_extra/$NR.*.ndpi --mask $MASK_DIR/_ndpi_extra/$NR.*.jpg --out $SAVE_DIR/
+	# elif [ -f $DATA_DIR/_tif_extra/$NR.*.TIF ]; then
+	# 	echo "TIF of $NR found."
+	# 	python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif_extra/$NR.*.TIF --mask $MASK_DIR/_tif_extra/$NR.*.jpg --out $SAVE_DIR/
 	if [ -f $DATA_DIR/_ndpi/$NR.*.ndpi ]; then
+	# elif [ -f $DATA_DIR/_ndpi/$NR.*.ndpi ]; then
     	echo "NDPI of $NR found."
 		if [ -f $MASK_DIR/_ndpi/$NR.*.jpg ]; then
 			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/_ndpi/$NR.*.jpg --out $SAVE_DIR/
@@ -188,8 +195,10 @@ else
 			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/_ndpi/$NR.*.png --out $SAVE_DIR/
 		elif [ -f $MASK_DIR/_images/$NR.*.jpg ]; then
 			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/_images/$NR.*.jpg --out $SAVE_DIR/
-		else
+		elif [ -f $MASK_DIR/FIBRIN/$NR.*.jpg ]; then
 			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/FIBRIN/$NR.*.jpg --out $SAVE_DIR/
+		else
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi/$NR.*.ndpi --mask $MASK_DIR/CD68/$NR.*.jpg --out $SAVE_DIR/
 		fi
 	elif [ -f $DATA_DIR/_tif/$NR.*.TIF ]; then
 		echo "TIF of $NR found."
@@ -197,15 +206,11 @@ else
 			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/$NR.*.TIF --mask $MASK_DIR/_tif/$NR.*.jpg --out $SAVE_DIR/
 		elif [ -f $MASK_DIR/_images/$NR.*.jpg ]; then
 			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/$NR.*.TIF --mask $MASK_DIR/_images/$NR.*.jpg --out $SAVE_DIR/
-		else
+		elif [ -f $MASK_DIR/FIBRIN/$NR.*.jpg ]; then
 			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/$NR.*.TIF --mask $MASK_DIR/FIBRIN/$NR.*.jpg --out $SAVE_DIR/
+		else
+			python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif/$NR.*.TIF --mask $MASK_DIR/CD68/$NR.*.jpg --out $SAVE_DIR/
 		fi
-	elif [ -f $DATA_DIR/_ndpi_extra/$NR.*.ndpi ]; then
-    	echo "NDPI of $NR found."
-		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_ndpi_extra/$NR.*.ndpi --mask $MASK_DIR/_ndpi_extra/$NR.*.jpg --out $SAVE_DIR/
-	elif [ -f $DATA_DIR/_tif_extra/$NR.*.TIF ]; then
-		echo "TIF of $NR found."
-		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_tif_extra/$NR.*.TIF --mask $MASK_DIR/_tif_extra/$NR.*.jpg --out $SAVE_DIR/
 	elif [ -f $DATA_DIR/_ndpi/_images/$NR.*.ndpi ]; then
     	echo "NDPI of $NR found."
 		if [ -f $MASK_DIR/_ndpi/$NR.*.jpg ]; then
@@ -226,6 +231,12 @@ else
 	elif [ -f $DATA_DIR/_images_dropzone/$NR.*.TIF ]; then
 		echo "[CUSTOM (_images_dropzone)] TIF of $NR found."
 		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/_images_dropzone/$NR.*.TIF --mask $MASK_DIR/CD68/$NR.*.jpg --out $SAVE_DIR/
+	elif [ -f $DATA_DIR/$NR.*.ndpi ]; then
+		echo "[CUSTOM] NDPI of $NR found."
+		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/$NR.*.ndpi --mask $MASK_DIR/$NR.*.png --out $SAVE_DIR/
+	elif [ -f $DATA_DIR/$NR.*.TIF ]; then
+		echo "[CUSTOM] TIF of $NR found."
+		python3 $SLIDETOOLKITDIR/slideExtractTiles.py --layer $LAYER --tile_size $TILESIZE --file $DATA_DIR/$NR.*.TIF --mask $MASK_DIR/$NR.*.png --out $SAVE_DIR/
 	else
 		echo "No NDPI or TIF of $NR found."
 	fi

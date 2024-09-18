@@ -1,30 +1,7 @@
 #!/bin/bash
 #
-# Description: Runs slideNormalize to normalize images as part of a slideQuantify job-session.
-# 
-# The MIT License (MIT)
-# Copyright (c) 2014-2021, Bas G.L. Nelissen, Sander W. van der Laan, 
-# UMC Utrecht, Utrecht, the Netherlands.
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a
-# copy of this software and associated documentation files (the
-# "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish,
-# distribute, sublicense, and/or sell copies of the Software, and to
-# permit persons to whom the Software is furnished to do so, subject to
-# the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included
-# in all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-# 
+# It is good practice to properly name and annotate your script for future reference for
+# yourself and others. Trust me, you'll forget why and how you made this!!!
 
 ### Creating display functions
 ### Setting colouring
@@ -110,88 +87,65 @@ script_copyright_message() {
 	echo "+ Reference: http://opensource.org.                                                                     +"
 	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 }
-
 script_arguments_error() {
 	echoerror "$1" # ERROR MESSAGE
+	echoerror "- Argument #1  -- name of the stain as it appears in the filenames, e.g. FIBRIN."
+	echoerror "- Argument #2  -- (the path to) the filename, e.g. Image.gct.gz, the script will automatically append STAIN, e.g. STAIN_Image.gct.gz"
+    echoerror "- Argument #3  -- (the path to) the slideToolkit output directory, e.g. ./slideToolkit"
+    echoerror "- Argument #4  -- [OPTIONAL] (the path to) the file to compare the processed study numbers with, e.g. ./CompareFile.txt"
 	echoerror ""
-	echoerror "- Argument #1  -- tiles_dir. Directory of tiles to be normalized"
-	echoerror ""
-	echoerror "An example command would be: slideQuantify_normalizing [arg1: /path/to/dir]"
-	echoerror ""
+	echoerror "An example command would be: slideAppendGCT [arg1: STAIN] [arg2: Image.gct.gz] [arg3: ./slideToolkit] [OPTIONAL arg4: CompareFile.txt]"
 	echoerror "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	# The wrong arguments are passed, so we'll exit the script now!
-	exit 1
+  	# The wrong arguments are passed, so we'll exit the script now!
+  	exit 1
 }
 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echobold "                          slideQuantify: Normalization"
+echobold "                            slideCheckProcessed"
 echo ""
-echoitalic "* Written by  : Sander W. van der Laan; Tim Bezemer; Tim van de Kerkhof"
-echoitalic "                Yipei Song, Tim Peters"
-echoitalic "* E-mail      : s.w.vanderlaan-2@umcutrecht.nl"
-echoitalic "* Last update : 2023-09-01"
-echoitalic "* Version     : 2.0.3"
+echoitalic "* Written by  : Tim S. Peters"
+echoitalic "* E-mail      : t.s.peters-4@umcutrecht.nl"
+echoitalic "* Last update : 2024-05-20"
+echoitalic "* Version     : v1.0.0"
 echo ""
-echoitalic "* Description : This script will start the normalization of images for "
-echoitalic "                slideToolKit analyses."
-echoitalic "                This is SLURM based."
+echoitalic "* Description : This script will collect all study number with a" 
+echoitalic "                correctly processed CellProfiler output."
+echoitalic "                Additionally, it will compare this list with a given list."
 echo ""
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "Today's: $(date)"
+TODAY=$(date +"%Y%m%d") # set Today
 
 echo ""
 ### REQUIRED | GENERALS	
+STAIN="$1" # Depends on arg1
+RESULTSFILENAME="$2"
+OUTDIR="$3"
 
-TILESDIR="${1}"
-# Reference
-# https://stackoverflow.com/questions/8903239/how-to-calculate-time-elapsed-in-bash-script
-SECONDS=0
-# do some work
+### OPTIONAL
+COMPAREFILE="$4"
 
-# if the list of files to use in CellProfiler exist, we exit this script
-if [[ -s $TILESDIR/files2cp.txt ]]
-then
-	echo "..... Normalization was already applied - moving on."
-	exit
+if [[ $# -lt 3 ]]; then 
+	echoerrorflash "Oh, computer says no! Number of arguments found $#."
+	script_arguments_error "You must supply correct (number of) arguments when running *** slideAppendGCT ***!"
+
+else	
+	echo ""
+	echoitalic "Creating a new log."
+
+	echo ""
+	echoitalic "Collecting data for:"
+	for filename in $OUTDIR/cp_output/*/"${STAIN}"_"${RESULTSFILENAME}"; do 
+		filedir="$(dirname "$filename")"
+		echo $filedir | awk -F/ '{print $NF}'
+		echo $filedir | awk -F/ '{print $NF}' >> $OUTDIR/"${TODAY}"."${STAIN}".processed.study_numbers.log
+	done
+	
+	if [ ! $# -eq 0 ]; then
+		echo "Comparing processed study numbers with given file"
+		# cat -n $COMPAREFILE $OUTDIR/"${TODAY}"."${STAIN}".processed.study_numbers.log | sort -uk2 | sort -nk1 | cut -f2- > $OUTDIR/"${TODAY}"."${STAIN}".unprocessed_study_numbers.txt
+		comm -23 <(sort $COMPAREFILE) <(sort $OUTDIR/"${TODAY}"."${STAIN}".processed.study_numbers.log) > $OUTDIR/"${TODAY}"."${STAIN}".unprocessed.study_numbers.log
+	fi
 fi
-echo $TILESDIR
-if [ ! -d $TILESDIR/*tiles ]; then
-	(>&2 echo "*** ERROR *** No tiles to process. Create tiles first using slideTiles.")
-	exit; 
-fi
 
-echo "..... Tiles present, starting normalization."
-# moving to the required directory
-cd $TILESDIR/*tiles/;
-
-# loading required modules 
-### Loading the CellProfiler-Anaconda3.8 environment
-### You need to also have the conda init lines in your .bash_profile/.bashrc file
-echo "..... > loading required anaconda environment containing the CellProfiler installation..."
-eval "$(conda shell.bash hook)"
-conda activate cp427
-echo Loaded conda environment: $CONDA_PREFIX
-echo ""
-
-for IMAGE_TILE in *.tile.tissue.png; do
-	echo "...Processing tile [ $IMAGE_TILE ]"
-	echo "... - applying normalization ..."
-	slideNormalize.py -f $IMAGE_TILE;
-	
-	echo "... - removing intermediate [ $IMAGE_TILE ] ..."
- 	rm -v $IMAGE_TILE;
-	
-done
-
-# moving back to the root of the $SLIDE_NUM directory
-cd ../
-
-echo "..... Collecting all normalized and masked tiles in a file for CellProfiler."
-ls -d -1 $(pwd)/*tiles/*normalized.tile.tissue.png > files2cp.txt;
-
-echo "..... Normalizing successfully finished."
-
-duration=$SECONDS
-echo "[ $(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed ]"
-	
 script_copyright_message
-

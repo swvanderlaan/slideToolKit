@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 ### Creating display functions
@@ -141,13 +142,13 @@ SLIDETOOLKITDIR="/hpc/local/Rocky8/dhl_ec/software/slideToolKit"
 QJOB_MEM_SLIDEMASK="8G"
 QJOB_TIME_SLIDEMASK="00:15:00"
 
-QJOB_MEM_SLIDETILES="24G"
-QJOB_TIME_SLIDETILES="00:20:00" # emperical evidence shows ±20 minutes
+QJOB_MEM_SLIDETILES="128G"
+QJOB_TIME_SLIDETILES="00:30:00" # emperical evidence shows ±20 minutes
 
 QJOB_MEM_SLIDENORM="8G"
-QJOB_TIME_SLIDENORM="00:15:00"
+QJOB_TIME_SLIDENORM="00:25:00"
 
-QJOB_MEM_CP="12G"
+QJOB_MEM_CP="24G"
 QJOB_TIME_CP="13:00:00"
 
 QJOB_MEM_WRAP="8G"
@@ -163,12 +164,12 @@ else
 	mkdir -pv "$PROJECTDIR"/slideToolkit/logs
 	mkdir -pv "$PROJECTDIR"/slideToolkit/errors
 
-    cd $PROJECTDIR
-
     PROCESSFILELINES=$(cat $PROCESSFILE)
+
+	cd $PROJECTDIR
     for SNR in $PROCESSFILELINES; do
         sleep 0.2
-        echobold "Processing images of file [ ${SNR} ] in directory [ ${PROJECTDIR}slideToolkit/ ] for staining [ ${STAIN} ]."
+        echobold "Processing images of file [ ${SNR} ] in directory [ ${PROJECTDIR}/slideToolkit/ ] for staining [ ${STAIN} ]."
 
         THIS_SLIDEMASK=${SNR}_slideMask
         THIS_SLIDETILES=${SNR}_slideTiles
@@ -179,27 +180,32 @@ else
 		echo ""
 		pwd
 
-        ### Checking if an analysis was done before
-        # if [[ -s cp_output/"$STAIN"_Image.csv.gz ]]; then 
-		# 	echoitalic "Checking if this file was processed before; cp_output/${STAIN}_Image.csv.gz should be present ....."
-		# 	ls -lh cp_output/*.gz
-		# 	cd .. ; 
-		# 	INDEX=$((INDEX+1)); 
-		# 	echo "..... Analysis was already done!"; 
-		# 	continue; 
-		# fi
+        ## Checking if an analysis was done before
+        if [[ -s cp_output/"$STAIN"_Image.csv.gz ]]; then 
+			echoitalic "Checking if this file was processed before; cp_output/${STAIN}_Image.csv.gz should be present ....."
+			ls -lh cp_output/*.gz
+			cd .. ; 
+			INDEX=$((INDEX+1)); 
+			echo "..... Analysis was already done!"; 
+			continue; 
+		fi
 
-        echo "..... Processing file for the first time. Submitting job for: "
+        echo "..... Processing file with StudyNumber ${SNR}. Submitting jobs for: "
 		
 		rm -rfv "$PROJECTDIR"/slideToolkit/logs/"$SNR"_*
 		rm -rfv "$PROJECTDIR"/slideToolkit/errors/"$SNR"_*
 
-		### Check if masks directory is given
+		## Check if masks directory is given
 		if [ -z "$9" ]
 		then
 			### TODO: Make mask of file
 			echo ""
 			echoitalic "* slideMask for creating mask from image. [$THIS_SLIDEMASK]"
+
+            echo "Removing log files from previous runs... "
+            rm -rfv "$PROJECTDIR"/slideToolkit/logs/${THIS_SLIDEMASK}.log
+            rm -rfv "$PROJECTDIR"/slideToolkit/errors/${THIS_SLIDEMASK}.errors
+
 			JOB_ID_THIS_SLIDEMASK=$(sbatch -J ${THIS_SLIDEMASK} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDEMASK}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDEMASK}.log  --mem=${QJOB_MEM_SLIDEMASK} --time=${QJOB_TIME_SLIDEMASK} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_1_entropy_segmentation.sh ${PROJECTDIR} ${MASKSDIR} ${SNR} )
 		else
 			echo ""
@@ -210,6 +216,10 @@ else
         ### slideTiles
         echo ""
 		echoitalic "* slideTiles for extracting tiles. [ $THIS_SLIDETILES ]"
+
+        echo "Removing log files from previous runs... "
+        rm -rfv "$PROJECTDIR"/slideToolkit/logs/${THIS_SLIDETILES}.log
+        rm -rfv "$PROJECTDIR"/slideToolkit/errors/${THIS_SLIDETILES}.errors
 	
 		### Check if masks directory is given
 		if [ -z "$9" ]
@@ -217,12 +227,17 @@ else
 			### run slideTiles with dependency on masking step
 			JOB_ID_THIS_SLIDETILES=$(sbatch -J ${THIS_SLIDETILES} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDETILES}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDETILES}.log  --mem=${QJOB_MEM_SLIDETILES} --time=${QJOB_TIME_SLIDETILES} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --depend=afterany:$JOB_ID_THIS_SLIDEMASK --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_2_extract_tiles.sh ${PROJECTDIR} ${MASKSDIR} ${OUTPUTDOWN} ${PATCHSIZE} ${SNR} )
 		else
+		    echo "sbatch -J ${THIS_SLIDETILES} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDETILES}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDETILES}.log  --mem=${QJOB_MEM_SLIDETILES} --time=${QJOB_TIME_SLIDETILES} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_2_extract_tiles.sh ${PROJECTDIR} ${MASKSDIR} ${OUTPUTDOWN} ${PATCHSIZE} ${SNR}"
 			JOB_ID_THIS_SLIDETILES=$(sbatch -J ${THIS_SLIDETILES} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDETILES}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDETILES}.log  --mem=${QJOB_MEM_SLIDETILES} --time=${QJOB_TIME_SLIDETILES} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_2_extract_tiles.sh ${PROJECTDIR} ${MASKSDIR} ${OUTPUTDOWN} ${PATCHSIZE} ${SNR} )
 		fi
 
         ### slideNormalize
         echo ""
 		echoitalic "* slideNormalize for normalization of tiles. [ $THIS_SLIDENORMALIZE ]"
+
+        echo "Removing log files from previous runs... "
+        rm -rfv "$PROJECTDIR"/slideToolkit/logs/${THIS_SLIDENORMALIZE}.log
+        rm -rfv "$PROJECTDIR"/slideToolkit/errors/${THIS_SLIDENORMALIZE}.errors
 	
         JOB_ID_THIS_SLIDENORMALIZE=$(sbatch -J ${THIS_SLIDENORMALIZE} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDENORMALIZE}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDENORMALIZE}.log  --mem=${QJOB_MEM_SLIDENORM} --time=${QJOB_TIME_SLIDENORM} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --depend=afterany:$JOB_ID_THIS_SLIDETILES --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_3_tile_normalizing.sh ${PROJECTDIR}/slideToolkit/_tiles_layer${OUTPUTDOWN}/${SNR}.* )
 		### FOR DEBUG
@@ -231,6 +246,10 @@ else
         ### CellProfiler
 		echo ""
 		echoitalic "* CellProfiler to analyze images. [ $THIS_CELLPROFILER ]"
+
+        echo "Removing log files from previous runs... "
+        rm -rfv "$PROJECTDIR"/slideToolkit/logs/${THIS_CELLPROFILER}.log
+        rm -rfv "$PROJECTDIR"/slideToolkit/errors/${THIS_CELLPROFILER}.errors
 	
         JOB_ID_THIS_CELLPROFILER=$(sbatch -J ${THIS_CELLPROFILER} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_CELLPROFILER}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_CELLPROFILER}.log --mem=${QJOB_MEM_CP} --time=${QJOB_TIME_CP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --depend=afterany:$JOB_ID_THIS_SLIDENORMALIZE --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_4_cellprofiler.sh ${PROJECTDIR}/slideToolkit/ ${PIPELINE} ${STAIN} ${SNR} ${PROJECTDIR}/slideToolkit/_tiles_layer${OUTPUTDOWN}/${SNR}.* )
 		### FOR DEBUG
@@ -239,6 +258,10 @@ else
 		### Wrap Up
 		echo ""
 		echoitalic "* WrapUp the work we have done, and clean house. [ $THIS_WRAPUP ]"
+
+        echo "Removing log files from previous runs... "
+        rm -rfv "$PROJECTDIR"/slideToolkit/logs/${THIS_WRAPUP}.log
+        rm -rfv "$PROJECTDIR"/slideToolkit/errors/${THIS_WRAPUP}.errors
 	
 		JOB_ID_THIS_WRAPUP=$(sbatch -J ${THIS_WRAPUP} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_WRAPUP}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_WRAPUP}.log --mem=${QJOB_MEM_WRAP} --time=${QJOB_TIME_WRAP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable --depend=afterany:$JOB_ID_THIS_CELLPROFILER ${SLIDETOOLKITDIR}/slideQuantify_v2_5_wrapup.sh ${SNR} ${STAIN} ${OUTPUTFILENAME} ${SLIDETOOLKITDIR} _tiles_layer${OUTPUTDOWN} )
 		### FOR DEBUG

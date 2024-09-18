@@ -183,7 +183,7 @@ else
 	### You need to also have the conda init lines in your .bash_profile/.bashrc file
 	echo "..... > loading required anaconda environment containing the CellProfiler installation..."
 	eval "$(conda shell.bash hook)"
-	conda activate cp4
+	conda activate cp427
 	echo Loaded conda environment: $CONDA_PREFIX
 	echo ""
 	
