@@ -227,7 +227,7 @@ else
 			### run slideTiles with dependency on masking step
 			JOB_ID_THIS_SLIDETILES=$(sbatch -J ${THIS_SLIDETILES} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDETILES}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDETILES}.log  --mem=${QJOB_MEM_SLIDETILES} --time=${QJOB_TIME_SLIDETILES} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --depend=afterany:$JOB_ID_THIS_SLIDEMASK --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_2_extract_tiles.sh ${PROJECTDIR} ${MASKSDIR} ${OUTPUTDOWN} ${PATCHSIZE} ${SNR} )
 		else
-		    echo "sbatch -J ${THIS_SLIDETILES} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDETILES}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDETILES}.log  --mem=${QJOB_MEM_SLIDETILES} --time=${QJOB_TIME_SLIDETILES} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_2_extract_tiles.sh ${PROJECTDIR} ${MASKSDIR} ${OUTPUTDOWN} ${PATCHSIZE} ${SNR}"
+		    # echo "sbatch -J ${THIS_SLIDETILES} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDETILES}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDETILES}.log  --mem=${QJOB_MEM_SLIDETILES} --time=${QJOB_TIME_SLIDETILES} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_2_extract_tiles.sh ${PROJECTDIR} ${MASKSDIR} ${OUTPUTDOWN} ${PATCHSIZE} ${SNR}"
 			JOB_ID_THIS_SLIDETILES=$(sbatch -J ${THIS_SLIDETILES} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDETILES}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDETILES}.log  --mem=${QJOB_MEM_SLIDETILES} --time=${QJOB_TIME_SLIDETILES} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_2_extract_tiles.sh ${PROJECTDIR} ${MASKSDIR} ${OUTPUTDOWN} ${PATCHSIZE} ${SNR} )
 		fi
 
@@ -244,28 +244,28 @@ else
 		# JOB_ID_THIS_SLIDENORMALIZE=$(sbatch -J ${THIS_SLIDENORMALIZE} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_SLIDENORMALIZE}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_SLIDENORMALIZE}.log  --mem=${QJOB_MEM_SLIDENORM} --time=${QJOB_TIME_SLIDENORM} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_3_tile_normalizing.sh ${PROJECTDIR}/slideToolkit/_tiles_layer${OUTPUTDOWN}/${SNR}.* )
 
         ### CellProfiler
-		echo ""
-		echoitalic "* CellProfiler to analyze images. [ $THIS_CELLPROFILER ]"
+		# echo ""
+		# echoitalic "* CellProfiler to analyze images. [ $THIS_CELLPROFILER ]"
 
-        echo "Removing log files from previous runs... "
-        rm -rfv "$PROJECTDIR"/slideToolkit/logs/${THIS_CELLPROFILER}.log
-        rm -rfv "$PROJECTDIR"/slideToolkit/errors/${THIS_CELLPROFILER}.errors
+        # echo "Removing log files from previous runs... "
+        # rm -rfv "$PROJECTDIR"/slideToolkit/logs/${THIS_CELLPROFILER}.log
+        # rm -rfv "$PROJECTDIR"/slideToolkit/errors/${THIS_CELLPROFILER}.errors
 	
-        JOB_ID_THIS_CELLPROFILER=$(sbatch -J ${THIS_CELLPROFILER} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_CELLPROFILER}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_CELLPROFILER}.log --mem=${QJOB_MEM_CP} --time=${QJOB_TIME_CP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --depend=afterany:$JOB_ID_THIS_SLIDENORMALIZE --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_4_cellprofiler.sh ${PROJECTDIR}/slideToolkit/ ${PIPELINE} ${STAIN} ${SNR} ${PROJECTDIR}/slideToolkit/_tiles_layer${OUTPUTDOWN}/${SNR}.* )
-		### FOR DEBUG
-		# JOB_ID_THIS_CELLPROFILER=$(sbatch -J ${THIS_CELLPROFILER} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_CELLPROFILER}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_CELLPROFILER}.log --mem=${QJOB_MEM_CP} --time=${QJOB_TIME_CP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_4_cellprofiler.sh ${PROJECTDIR}/slideToolkit/ ${PIPELINE} ${STAIN} ${SNR} ${PROJECTDIR}/slideToolkit/_tiles_layer${OUTPUTDOWN}/${SNR}.* )
+        # JOB_ID_THIS_CELLPROFILER=$(sbatch -J ${THIS_CELLPROFILER} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_CELLPROFILER}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_CELLPROFILER}.log --mem=${QJOB_MEM_CP} --time=${QJOB_TIME_CP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --depend=afterany:$JOB_ID_THIS_SLIDENORMALIZE --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_4_cellprofiler.sh ${PROJECTDIR}/slideToolkit/ ${PIPELINE} ${STAIN} ${SNR} ${PROJECTDIR}/slideToolkit/_tiles_layer${OUTPUTDOWN}/${SNR}.* )
+		# ### FOR DEBUG
+		# # JOB_ID_THIS_CELLPROFILER=$(sbatch -J ${THIS_CELLPROFILER} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_CELLPROFILER}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_CELLPROFILER}.log --mem=${QJOB_MEM_CP} --time=${QJOB_TIME_CP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_4_cellprofiler.sh ${PROJECTDIR}/slideToolkit/ ${PIPELINE} ${STAIN} ${SNR} ${PROJECTDIR}/slideToolkit/_tiles_layer${OUTPUTDOWN}/${SNR}.* )
 		
 		### Wrap Up
-		echo ""
-		echoitalic "* WrapUp the work we have done, and clean house. [ $THIS_WRAPUP ]"
+		# echo ""
+		# echoitalic "* WrapUp the work we have done, and clean house. [ $THIS_WRAPUP ]"
 
-        echo "Removing log files from previous runs... "
-        rm -rfv "$PROJECTDIR"/slideToolkit/logs/${THIS_WRAPUP}.log
-        rm -rfv "$PROJECTDIR"/slideToolkit/errors/${THIS_WRAPUP}.errors
+        # echo "Removing log files from previous runs... "
+        # rm -rfv "$PROJECTDIR"/slideToolkit/logs/${THIS_WRAPUP}.log
+        # rm -rfv "$PROJECTDIR"/slideToolkit/errors/${THIS_WRAPUP}.errors
 	
-		JOB_ID_THIS_WRAPUP=$(sbatch -J ${THIS_WRAPUP} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_WRAPUP}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_WRAPUP}.log --mem=${QJOB_MEM_WRAP} --time=${QJOB_TIME_WRAP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable --depend=afterany:$JOB_ID_THIS_CELLPROFILER ${SLIDETOOLKITDIR}/slideQuantify_v2_5_wrapup.sh ${SNR} ${STAIN} ${OUTPUTFILENAME} ${SLIDETOOLKITDIR} _tiles_layer${OUTPUTDOWN} )
-		### FOR DEBUG
-		# JOB_ID_THIS_WRAPUP=$(sbatch -J ${THIS_WRAPUP} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_WRAPUP}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_WRAPUP}.log --mem=${QJOB_MEM_WRAP} --time=${QJOB_TIME_WRAP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_5_wrapup.sh ${SNR} ${STAIN} ${OUTPUTFILENAME} ${SLIDETOOLKITDIR} _tiles_layer${OUTPUTDOWN} )
+		# JOB_ID_THIS_WRAPUP=$(sbatch -J ${THIS_WRAPUP} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_WRAPUP}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_WRAPUP}.log --mem=${QJOB_MEM_WRAP} --time=${QJOB_TIME_WRAP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable --depend=afterany:$JOB_ID_THIS_CELLPROFILER ${SLIDETOOLKITDIR}/slideQuantify_v2_5_wrapup.sh ${SNR} ${STAIN} ${OUTPUTFILENAME} ${SLIDETOOLKITDIR} _tiles_layer${OUTPUTDOWN} )
+		# ### FOR DEBUG
+		# # JOB_ID_THIS_WRAPUP=$(sbatch -J ${THIS_WRAPUP} -e ${PROJECTDIR}/slideToolkit/errors/${THIS_WRAPUP}.errors -o ${PROJECTDIR}/slideToolkit/logs/${THIS_WRAPUP}.log --mem=${QJOB_MEM_WRAP} --time=${QJOB_TIME_WRAP} --mail-type=${MAILSETTING} --mail-user=${EMAIL} --parsable ${SLIDETOOLKITDIR}/slideQuantify_v2_5_wrapup.sh ${SNR} ${STAIN} ${OUTPUTFILENAME} ${SLIDETOOLKITDIR} _tiles_layer${OUTPUTDOWN} )
 
     ### END OF for-loop
     done
