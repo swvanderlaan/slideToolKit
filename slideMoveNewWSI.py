@@ -282,7 +282,7 @@ def main():
     start_time = time.time()
 
     print(f"+ {VERSION_NAME} v{VERSION} ({VERSION_DATE}) +")
-    print(f"\nIdentify and move multiplicate image files for study type: {args.study_type} and stain: {args.stain}")
+    print(f"\nMove new WSI files based on study type and stain name.")
 
     # Report the input arguments
     print(f"\nInput folder.......: {args.input}")
@@ -293,6 +293,8 @@ def main():
     print(f"Verbose..............: {args.verbose}")
     print(f"Log file.............: {args.log}")
 
+    if args.dry_run:
+        print("\nDry run mode: no actual file operations will be performed.")
     # Check if the input and destination folders exist
     if not os.path.exists(args.input):
         print(f"Error: Input folder '{args.input}' does not exist.")
