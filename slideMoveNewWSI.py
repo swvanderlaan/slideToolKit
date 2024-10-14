@@ -36,7 +36,7 @@ Options:
     --stain, -s        Specify the stain name, e.g., CD34. Required.
     --destination, -d  Specify the destination folder to move the files. Required.
     --log, -l          Specify the log file name to write statistics. Optional.
-    --dry_run, -n      Perform a dry run (report in the terminal, no actual file operations). Optional.
+    --dry-run, -n      Perform a dry run (report in the terminal, no actual file operations). Optional.
     --verbose, -v      Print detailed operations for each file. Optional.
     --help, -h         Print this help message and exit. Optional.
 """
@@ -267,7 +267,7 @@ def main():
     parser.add_argument('--stain', '-s', required=True, help='Specify the stain name, e.g., CD34.')
     parser.add_argument('--destination', '-d', required=True, help='Specify the destination folder to move the files.')
     parser.add_argument('--log', '-l', required=False, help='Specify the log file path.')
-    parser.add_argument('--dry_run', '-n', action='store_true', help='Perform a dry run (no actual file operations).')
+    parser.add_argument('--dry-run', '-n', action='store_true', help='Perform a dry run (no actual file operations).')
     parser.add_argument('--verbose', '-v', action='store_true', help='Print detailed operations for each file.')
 
     args = parser.parse_args()
@@ -287,7 +287,7 @@ def main():
 
     # Create the _duplicates folder if it does not exist
     duplicates_folder = os.path.join(args.destination, '_duplicates')
-    if verbose:
+    if args.verbose:
         print(f"Creating duplicates folder: {duplicates_folder}")
     if not os.path.exists(duplicates_folder):
         os.makedirs(duplicates_folder, exist_ok=True)
