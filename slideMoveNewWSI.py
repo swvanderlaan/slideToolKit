@@ -116,9 +116,16 @@ def move_to_duplicates(file_path, duplicate_folder, from_input=False, dry_run=Fa
     else:
         duplicate_file = os.path.join(duplicate_folder, os.path.basename(file_path))
 
+    if os.path.exists(duplicate_file):
+        if verbose:
+            print(f"File {duplicate_file} already exists in duplicates. Skipping move.")
+        return duplicate_file  # Skip moving since it's already in duplicates.
+
     try:
         if not dry_run:
             shutil.move(file_path, duplicate_file)
+        else:
+            print(f"Dry-run mode: would be moving {file_path} > {duplicate_file}")
         if verbose:
             print(f"  - {file_path} > {duplicate_file} (moved to duplicates)")
     except Exception as e:
@@ -262,13 +269,13 @@ def write_log(log_file_path, study_type, stain, unique_samples, duplicate_study_
 # Main function
 def main():
     parser = argparse.ArgumentParser(description="Move WSI files for a specific study type and stain, checking if the study number already exists in the destination.")
-    parser.add_argument('--input', '-i', required=True, help='Specify the input folder where images are located.')
-    parser.add_argument('--study-type', '-t', required=True, help='Specify the study type prefix, e.g., AE.')
-    parser.add_argument('--stain', '-s', required=True, help='Specify the stain name, e.g., CD34.')
-    parser.add_argument('--destination', '-d', required=True, help='Specify the destination folder to move the files.')
-    parser.add_argument('--log', '-l', required=False, help='Specify the log file path.')
-    parser.add_argument('--dry-run', '-n', action='store_true', help='Perform a dry run (no actual file operations).')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Print detailed operations for each file.')
+    parser.add_argument('--input', '-i', required=True, help='Specify the input folder where images are located. Required.')
+    parser.add_argument('--study-type', '-t', required=True, help='Specify the study type prefix, e.g., AE. Required.')
+    parser.add_argument('--stain', '-s', required=True, help='Specify the stain name, e.g., CD34. Required.')
+    parser.add_argument('--destination', '-d', required=True, help='Specify the destination folder to move the files. Required.')
+    parser.add_argument('--log', '-l', required=False, help='Specify the log file path. Optional.')
+    parser.add_argument('--dry-run', '-n', action='store_true', help='Perform a dry run (no actual file operations). Optional.')
+    parser.add_argument('--verbose', '-v', action='store_true', help='Print detailed operations for each file. Optional.')
 
     args = parser.parse_args()
 
@@ -277,6 +284,16 @@ def main():
     print(f"+ {VERSION_NAME} v{VERSION} ({VERSION_DATE}) +")
     print(f"\nIdentify and move multiplicate image files for study type: {args.study_type} and stain: {args.stain}")
 
+    # Report the input arguments
+    print(f"\nInput folder.......: {args.input}")
+    print(f"Study type...........: {args.study_type}")
+    print(f"Stain................: {args.stain}")
+    print(f"Destination folder...: {args.destination}")
+    print(f"Dry run..............: {args.dry_run}")
+    print(f"Verbose..............: {args.verbose}")
+    print(f"Log file.............: {args.log}")
+
+    # Check if the input and destination folders exist
     if not os.path.exists(args.input):
         print(f"Error: Input folder '{args.input}' does not exist.")
         raise FileNotFoundError(f"Input folder '{args.input}' does not exist.")
