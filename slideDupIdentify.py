@@ -233,9 +233,9 @@ python slideDupIdentify.py --study_type AE --stain CD34 --output duplicate_files
             print(f"Notice: you did not provide the --image_folder, assuming the current directory ('{os.getcwd()}') holds the images.")
         image_folder = os.getcwd()
     else:
+        image_folder = args.image_folder
         if args.verbose:
             print(f"Notice: you provided the --image_folder '{image_folder}'.")
-        image_folder = args.image_folder
     stain_image_folder = os.path.join(image_folder, args.stain)
     if not os.path.exists(image_folder):
         print(f"Error: image folder '{image_folder}' does not exist.")
