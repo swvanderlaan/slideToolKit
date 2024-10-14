@@ -24,11 +24,34 @@ Options:
 """
 
 # Version information
+# Change log:
+# * v1.1.0 (2024-10-11): Overhaul to make the script more modular, define functions, and easier to read.
+# * v1.0.3 (2024-01-1): Initial version.
 VERSION_NAME = 'slideDupIdentify'
-VERSION = '1.0.3'
-VERSION_DATE = '2024-01-12'
+VERSION = '1.1.0'
+VERSION_DATE = '2024-10-11'
 COPYRIGHT = 'Copyright 1979-2024. Tim S. Peters & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
-COPYRIGHT_TEXT = f'\nThe MIT License (MIT). \n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and \nassociated documentation files (the "Software"), to deal in the Software without restriction, \nincluding without limitation the rights to use, copy, modify, merge, publish, distribute, \nsublicense, and/or sell copies of the Software, and to permit persons to whom the Software is \nfurnished to do so, subject to the following conditions: \n\nThe above copyright notice and this permission notice shall be included in all copies \nor substantial portions of the Software. \n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, \nINCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR \nPURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS \nBE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, \nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE \nOR OTHER DEALINGS IN THE SOFTWARE. \n\nReference: http://opensource.org.'
+COPYRIGHT_TEXT = '''
+The MIT License (MIT).
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
+associated documentation files (the "Software"), to deal in the Software without restriction, 
+including without limitation the rights to use, copy, modify, merge, publish, distribute, 
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is 
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies 
+or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS 
+BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE 
+OR OTHER DEALINGS IN THE SOFTWARE.
+
+Reference: http://opensource.org.
+'''
 
 # Import required packages
 import os
@@ -45,6 +68,8 @@ import pandas as pd
 
 # Calculate the checksum of a file
 def calculate_checksum(file_path):
+    '''Calculate the checksum of a file.'''
+    
     hasher = hashlib.sha256()
     with open(file_path, 'rb') as f:
         while chunk := f.read(8192):
@@ -53,6 +78,8 @@ def calculate_checksum(file_path):
 
 # Get the file extension
 def get_study_and_remaining(file_name):
+    '''Get the study number and remaining part of the file name.'''
+
     # Split the filename and extension
     file_basename, file_extension = os.path.splitext(file_name)
     
@@ -70,6 +97,8 @@ def get_study_and_remaining(file_name):
 
 # Move the file to the duplicate folder
 def move_to_duplicates(file_path, duplicate_folder, priority, dry_run=False, verbose=False):
+    '''Move the file to the duplicate folder.'''
+
     if not dry_run:
         if priority:
             duplicate_file = os.path.join(duplicate_folder, os.path.basename(file_path))
@@ -86,8 +115,9 @@ def move_to_duplicates(file_path, duplicate_folder, priority, dry_run=False, ver
 
 # Function to preprocess fileype for prioritization
 def process_prioritazation(metadata_df, verbose=False):
-    study_numbers = defaultdict()
+    '''Process the metadata for prioritization.'''
 
+    study_numbers = defaultdict()
     # Get the different file metadata per study_number
     for snr in metadata_df['study_number'].unique():
         study_number_df = metadata_df.loc[metadata_df['study_number'] == snr]
@@ -115,6 +145,8 @@ def process_prioritazation(metadata_df, verbose=False):
 
 # Function returning a prioritized list of the same study_number
 def prioritize_files(files):
+    '''Prioritize the files based on certain criteria.'''
+
     if len(files) == 1:
         return {'metadata': files.iloc[0], 'priority': 'keep_this_one'}    
 
