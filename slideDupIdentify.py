@@ -114,7 +114,7 @@ def move_to_duplicates(file_path, duplicate_folder, priority, dry_run=False, ver
     return duplicate_file
 
 # Function to preprocess fileype for prioritization
-def process_prioritazation(metadata_df, verbose=False):
+def process_prioritization(metadata_df, verbose=False):
     '''Process the metadata for prioritization.'''
 
     study_numbers = defaultdict()
@@ -386,7 +386,7 @@ python slideDupIdentify.py --study_type AE --stain CD34 --output duplicate_files
     # Process prioritization
     print(f"\nPrioritizing multiplicate file:")
     # Determine prioritization for each study_number
-    multiplicity_df = process_prioritazation(multiplicity_df, args.verbose).sort_values(by=['study_number', 'priority'], ascending=[True, False])
+    multiplicity_df = process_prioritization(multiplicity_df, args.verbose).sort_values(by=['study_number', 'priority'], ascending=[True, False])
 
     print(f"\nPrioritization completed.")
     # Write the priority information to a file
