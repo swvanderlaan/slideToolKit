@@ -297,7 +297,7 @@ def main():
         log_dir = os.path.dirname(args.log)
         if log_dir and not os.path.exists(log_dir):
             os.makedirs(log_dir, exist_ok=True)
-        log_file_path = os.path.join(duplicate_folder, args.log + '.' + args.study_type + '.' + args.stain + '.movenewwsi.log')
+        log_file_path = os.path.join(duplicates_folder, args.log + '.' + args.study_type + '.' + args.stain + '.movenewwsi.log')
 
     # Move and prioritize files
     unique_samples, duplicate_study_numbers, prioritized_metadata = move_and_prioritize_files(
