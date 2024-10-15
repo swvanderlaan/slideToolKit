@@ -194,44 +194,47 @@ def move_and_prioritize_files(input_folder, study_type, stain, destination_folde
 
     for root, dirs, files in os.walk(input_folder):
         for file in files:
-            if file.endswith('.ndpi') and stain in file:
-                study_number = get_study_number(file, study_type)
-                if study_number:
-                    src_file = os.path.join(root, file)
-                    dest_file = os.path.join(destination_folder, file)
+            # Check if the file is .ndpi or .TIF and contains the specified stain
+            if file.endswith('.ndpi') or file.endswith('.TIF'):
+                if f".{stain}." in file:
 
-                    # Check if the file exists in the destination folder
-                    if os.path.exists(dest_file):
-                        if verbose:
-                            print(f"Duplicate found for {study_number}. Moving destination file to duplicates and renaming input.")
-                        duplicate_study_numbers.add(study_number)
+                    study_number = get_study_number(file, study_type)
+                    if study_number:
+                        src_file = os.path.join(root, file)
+                        dest_file = os.path.join(destination_folder, file)
 
-                        # Move the destination file to _duplicates without renaming
-                        move_to_duplicates(dest_file, duplicates_folder, from_input=False, dry_run=dry_run, verbose=verbose)
+                        # Check if the file exists in the destination folder
+                        if os.path.exists(dest_file):
+                            if verbose:
+                                print(f"Duplicate found for {study_number}. Moving destination file to duplicates and renaming input.")
+                            duplicate_study_numbers.add(study_number)
 
-                        # Move and rename the input file to _duplicates (e.g., v2, v3)
-                        moved_input_file = move_to_duplicates(src_file, duplicates_folder, from_input=True, dry_run=dry_run, verbose=verbose)
+                            # Move the destination file to _duplicates without renaming
+                            move_to_duplicates(dest_file, duplicates_folder, from_input=False, dry_run=dry_run, verbose=verbose)
 
-                        if not dry_run:
-                            # Only calculate checksum and file metadata if not in dry-run mode
-                            file_checksum = calculate_checksum(moved_input_file)
-                            file_size = os.path.getsize(moved_input_file)
-                            file_mod_date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(os.path.getmtime(moved_input_file)))
-                            files_metadata.append({
-                                'study_number': study_number,
-                                'filename': moved_input_file,
-                                'file_mod_date': file_mod_date,
-                                'checksum': file_checksum,
-                                'filesize': file_size,
-                                'filetype': '.ndpi'
-                            })
-                    else:
-                        # Move files to the destination folder
-                        if verbose:
-                            print(f"Moving {file} to {destination_folder}")
-                        if not dry_run:
-                            shutil.move(src_file, dest_file)
-                        unique_samples.add(study_number)
+                            # Move and rename the input file to _duplicates (e.g., v2, v3)
+                            moved_input_file = move_to_duplicates(src_file, duplicates_folder, from_input=True, dry_run=dry_run, verbose=verbose)
+
+                            if not dry_run:
+                                # Only calculate checksum and file metadata if not in dry-run mode
+                                file_checksum = calculate_checksum(moved_input_file)
+                                file_size = os.path.getsize(moved_input_file)
+                                file_mod_date = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(os.path.getmtime(moved_input_file)))
+                                files_metadata.append({
+                                    'study_number': study_number,
+                                    'filename': moved_input_file,
+                                    'file_mod_date': file_mod_date,
+                                    'checksum': file_checksum,
+                                    'filesize': file_size,
+                                    'filetype': '.ndpi'
+                                })
+                        else:
+                            # Move files to the destination folder
+                            if verbose:
+                                print(f"Moving {file} to {destination_folder}")
+                            if not dry_run:
+                                shutil.move(src_file, dest_file)
+                            unique_samples.add(study_number)
 
     if not dry_run and files_metadata:
         files_df = pd.DataFrame(files_metadata)
