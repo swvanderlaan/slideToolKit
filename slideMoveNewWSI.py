@@ -43,10 +43,11 @@ Options:
 
 # Version information
 # Change log:
+# * v1.1.0 (2024-10-15): Added checksum calculation and file metadata for prioritization. Added logic to move and prioritize files.
 # * v1.0.0 (2024-10-14): Initial version.
 VERSION_NAME = 'slideMoveNewWSI'
-VERSION = '1.0.0'
-VERSION_DATE = '2024-10-14'
+VERSION = '1.1.0'
+VERSION_DATE = '2024-10-15'
 COPYRIGHT = 'Copyright 1979-2024. Tim S. Peters & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
 The MIT License (MIT).
@@ -111,8 +112,9 @@ def get_next_version_filename(file_path):
 # Function to move files to duplicates folder with optional renaming for input
 def move_to_duplicates(file_path, duplicate_folder, from_input=False, dry_run=False, verbose=False):
     '''Move the file to the duplicate folder. If from_input is True, rename to v2, v3, etc.'''
+    backup_folder = os.path.join(duplicate_folder, '_backup_duplicates')
     if from_input:
-        duplicate_file = get_next_version_filename(os.path.join(duplicate_folder, os.path.basename(file_path)))
+        duplicate_file = get_next_version_filename(os.path.join(backup_folder, os.path.basename(file_path)))
     else:
         duplicate_file = os.path.join(duplicate_folder, os.path.basename(file_path))
 
@@ -187,6 +189,8 @@ def prioritize_files(files):
 def move_and_prioritize_files(input_folder, study_type, stain, destination_folder, dry_run=False, verbose=False):
     '''Move and prioritize ndpi files based on study type and stain name.'''
     duplicates_folder = os.path.join(destination_folder, '_duplicates')
+    backup_folder = os.path.join(duplicates_folder, '_backup_duplicates')
+    os.makedirs(backup_folder, exist_ok=True)
 
     files_metadata = []
     unique_samples = set()  # Track unique study numbers
@@ -213,7 +217,7 @@ def move_and_prioritize_files(input_folder, study_type, stain, destination_folde
                             # Move the destination file to _duplicates without renaming
                             move_to_duplicates(dest_file, duplicates_folder, from_input=False, dry_run=dry_run, verbose=verbose)
 
-                            # Move and rename the input file to _duplicates (e.g., v2, v3)
+                            # Move and rename the input file to _backup_duplicates (e.g., v2, v3)
                             moved_input_file = move_to_duplicates(src_file, duplicates_folder, from_input=True, dry_run=dry_run, verbose=verbose)
 
                             if not dry_run:
