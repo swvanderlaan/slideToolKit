@@ -7,7 +7,8 @@ This script moves *.ndpi files from an input folder to a destination folder base
 study type (--study-type AE) and stain name (--stain). It checks if the AE-studynumber is already 
 present in the destination folder (--destination) before moving any files. It prioritizes multiplicates 
 according to certain rules. It provides options (`--verbose`) to output information about the 
-multiplicates and log statistics using `--log`.
+multiplicates and execute a dry-run (`--dry-run`) without moving files. It also logs statistics 
+using `--log`, which is required.
 
 Images are expected to be of the form `study_typestudy_number.[additional_info.]stain.[random_info.]file_extension`, 
 e.g., `AE1234.T01-12345.CD34.ndpi`, where `AE` is the `study_type`, `1234` is the `study_number`, 
@@ -35,7 +36,7 @@ Options:
     --study-type, -t   Specify the study type prefix, e.g., AE. Required.
     --stain, -s        Specify the stain name, e.g., CD34. Required.
     --destination, -d  Specify the destination folder to move the files. Required.
-    --log, -l          Specify the log file name to write statistics. Optional.
+    --log, -l          Specify the log file name to write statistics. Required.
     --dry-run, -n      Perform a dry run (report in the terminal, no actual file operations). Optional.
     --verbose, -v      Print detailed operations for each file. Optional.
     --help, -h         Print this help message and exit. Optional.
@@ -43,10 +44,11 @@ Options:
 
 # Version information
 # Change log:
+# * v1.1.1 (2024-10-15): Fixed a bug where the metadata was not stored. Added a requirement of --log.
 # * v1.1.0 (2024-10-15): Added checksum calculation and file metadata for prioritization. Added logic to move and prioritize files.
 # * v1.0.0 (2024-10-14): Initial version.
 VERSION_NAME = 'slideMoveNewWSI'
-VERSION = '1.1.0'
+VERSION = '1.1.1'
 VERSION_DATE = '2024-10-15'
 COPYRIGHT = 'Copyright 1979-2024. Tim S. Peters & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -186,7 +188,7 @@ def prioritize_files(files):
     return prioritized_file
 
 # Function to move and prioritize ndpi files
-def move_and_prioritize_files(input_folder, study_type, stain, destination_folder, dry_run=False, verbose=False):
+def move_and_prioritize_files(input_folder, study_type, stain, destination_folder, log_file=None, dry_run=False, verbose=False):
     '''Move and prioritize ndpi files based on study type and stain name.'''
     duplicates_folder = os.path.join(destination_folder, '_duplicates')
     backup_folder = os.path.join(duplicates_folder, '_backup_duplicates')
@@ -202,7 +204,6 @@ def move_and_prioritize_files(input_folder, study_type, stain, destination_folde
             if file.endswith('.ndpi') or file.endswith('.TIF'):
                 # Check if the file contains the study type and stain
                 if f".{stain}." in file:
-
                     study_number = get_study_number(file, study_type)
                     if study_number:
                         src_file = os.path.join(root, file)
@@ -245,6 +246,13 @@ def move_and_prioritize_files(input_folder, study_type, stain, destination_folde
         files_df = pd.DataFrame(files_metadata)
         prioritized_metadata = process_prioritization(files_df, verbose)
 
+        # Save metadata to CSV file after all files are processed
+        if log_file:
+            metadata_csv_path = os.path.join(duplicates_folder, f'{log_file}.{study_type}.{stain}.movenewwsi.metadata.csv')
+            files_df.to_csv(metadata_csv_path, index=False)
+            if verbose:
+                print(f"Metadata saved to {metadata_csv_path}")
+
         if verbose:
             print("Prioritization process completed.")
         return unique_samples, duplicate_study_numbers, prioritized_metadata
@@ -278,13 +286,13 @@ def write_log(log_file_path, study_type, stain, unique_samples, duplicate_study_
 # Main function
 def main():
     parser = argparse.ArgumentParser(description="Move WSI files for a specific study type and stain, checking if the study number already exists in the destination.")
-    parser.add_argument('--input', '-i', required=True, help='Specify the input folder where images are located. Required.')
-    parser.add_argument('--study-type', '-t', required=True, help='Specify the study type prefix, e.g., AE. Required.')
-    parser.add_argument('--stain', '-s', required=True, help='Specify the stain name, e.g., CD34. Required.')
-    parser.add_argument('--destination', '-d', required=True, help='Specify the destination folder to move the files. Required.')
-    parser.add_argument('--log', '-l', required=False, help='Specify the log file path. Optional.')
-    parser.add_argument('--dry-run', '-n', action='store_true', help='Perform a dry run (no actual file operations). Optional.')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Print detailed operations for each file. Optional.')
+    parser.add_argument('-i', '--input', required=True, help='Specify the input folder where images are located. Required.')
+    parser.add_argument('-t', '--study-type', required=True, help='Specify the study type prefix, e.g., AE. Required.')
+    parser.add_argument('-s', '--stain', required=True, help='Specify the stain name, e.g., CD34. Required.')
+    parser.add_argument('-d', '--destination', required=True, help='Specify the destination folder to move the files. Required.')
+    parser.add_argument('-l', '--log', required=True, help='Specify the log file prefix, for example `20241015`. The script will append the study type and stain to the log file name. Required.')
+    parser.add_argument('-n', '--dry-run', action='store_true', help='Perform a dry run (no actual file operations). Optional.')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Print detailed operations for each file. Optional.')
 
     args = parser.parse_args()
 
@@ -298,9 +306,12 @@ def main():
     print(f"Study type...........: {args.study_type}")
     print(f"Stain................: {args.stain}")
     print(f"Destination folder...: {args.destination}")
+    if args.verbose:
+        print(f"Log file prefix......: {args.log} (full path: {args.destination}/_duplicates/{args.log}.{args.study_type}.{args.stain}.movenewwsi.log)")
+    else:
+        print(f"Log file prefix......: {args.log}")
     print(f"Dry run..............: {args.dry_run}")
     print(f"Verbose..............: {args.verbose}")
-    print(f"Log file.............: {args.log}")
 
     if args.dry_run:
         print("\nDry run mode: no actual file operations will be performed.")
@@ -320,16 +331,15 @@ def main():
     if not os.path.exists(duplicates_folder):
         os.makedirs(duplicates_folder, exist_ok=True)
 
-    # Log file path
-    if args.log:
-        log_dir = os.path.dirname(args.log)
-        if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-        log_file_path = os.path.join(duplicates_folder, args.log + '.' + args.study_type + '.' + args.stain + '.movenewwsi.log')
+    # Log file path (now always required)
+    log_dir = os.path.dirname(args.log)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+    log_file_path = os.path.join(duplicates_folder, args.log + '.' + args.study_type + '.' + args.stain + '.movenewwsi.log')
 
     # Move and prioritize files
     unique_samples, duplicate_study_numbers, prioritized_metadata = move_and_prioritize_files(
-        args.input, args.study_type, args.stain, args.destination, dry_run=args.dry_run, verbose=args.verbose)
+        args.input, args.study_type, args.stain, args.destination, log_file=args.log, dry_run=args.dry_run, verbose=args.verbose)
 
     elapsed_time = time.time() - start_time
     time_delta = timedelta(seconds=elapsed_time)
