@@ -196,6 +196,7 @@ def move_and_prioritize_files(input_folder, study_type, stain, destination_folde
         for file in files:
             # Check if the file is .ndpi or .TIF and contains the specified stain
             if file.endswith('.ndpi') or file.endswith('.TIF'):
+                # Check if the file contains the study type and stain
                 if f".{stain}." in file:
 
                     study_number = get_study_number(file, study_type)
