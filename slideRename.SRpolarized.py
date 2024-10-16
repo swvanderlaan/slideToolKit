@@ -71,11 +71,15 @@ Reference: http://opensource.org.
 # Import required packages
 import glob
 import argparse
+import os
+import time
+from datetime import timedelta
+import logging
 import re
+import pandas as pd  
 
 # Set up logger function
 def setup_logger(log_name, log_file, verbose):
-    import logging
     logger = logging.getLogger(log_name)
     logger.setLevel(logging.DEBUG if verbose else logging.INFO)
 
@@ -176,10 +180,6 @@ def rename_tif_files(input_csv, input_dir, studytype, log_filename, verbose, dry
 
 # Main function
 def main():
-    # Import necessary packages
-    import pandas as pd  
-    import os
-    import time
     # Parse command line arguments
     parser = argparse.ArgumentParser(description=f'''
 + {VERSION_NAME} v{VERSION} +
