@@ -37,13 +37,14 @@ Options:
 
 # Version information
 # Change log:
+# * v1.0.5 (2024-10-16): Fixed an issue where the extension was not correctly added to the new filename.
 # * v1.0.4 (2024-10-16): Fixed an issue where the script was slow.
 # * v1.0.3 (2024-10-16): Expanded --help message with more detailed information. 
 # * v1.0.2 (2024-10-16): Fixed issue where different variations of T-numbers were not handled properly. Added --stydytype.
 # * v1.0.1 (2024-10-16): Fixed issue where T-numbers were not correctly extracted from filenames, and padded the number after the dash to 5 digits.
 # * v1.0.0 (2024-10-16): Initial version.
 VERSION_NAME = 'slideRenameSRpolarized'
-VERSION = '1.0.4'
+VERSION = '1.0.5'
 VERSION_DATE = '2024-10-16'
 COPYRIGHT = 'Copyright 1979-2024. Tim van de Kerkhof & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -72,14 +73,11 @@ Reference: http://opensource.org.
 import glob
 import argparse
 import os
-import time
-from datetime import timedelta
-import logging
 import re
-import pandas as pd  
 
 # Set up logger function
 def setup_logger(log_name, log_file, verbose):
+    import logging  # Import logging here to avoid unnecessary imports
     logger = logging.getLogger(log_name)
     logger.setLevel(logging.DEBUG if verbose else logging.INFO)
 
@@ -108,7 +106,7 @@ def add_version_if_exists(filepath):
     version = 1
     new_filepath = filepath
     while os.path.exists(new_filepath):
-        new_filepath = f"{base}_v{version}{ext}"
+        new_filepath = f"{base}.v{version}{ext}"
         version += 1
     return new_filepath
 
@@ -128,6 +126,7 @@ def extract_tnum_and_info(filename):
 
 # Main renaming function
 def rename_tif_files(input_csv, input_dir, studytype, log_filename, verbose, dry_run):
+    import pandas as pd  # Import pandas here to avoid unnecessary imports
     # Set up logging
     logger = setup_logger("slideRenameRSpolarized", log_filename, verbose)
     
@@ -150,7 +149,7 @@ def rename_tif_files(input_csv, input_dir, studytype, log_filename, verbose, dry
                 index = index[0]
                 SAMPLEID = studytype + str(TNUMDF.at[index, 'STUDY_NUMBER'])  # Use studytype flag value here
                 # Adding SR_POLARIZED to the file name
-                newname = os.path.join(input_dir, f"{SAMPLEID}.{tnum}.SR_POLARIZED.tif")
+                newname = os.path.join(input_dir, f"{SAMPLEID}.{tnum}.SR_POLARIZED.TIF")
                 origname = tif
                 
                 # Check if file with newname exists and add version if necessary
@@ -180,6 +179,9 @@ def rename_tif_files(input_csv, input_dir, studytype, log_filename, verbose, dry
 
 # Main function
 def main():
+    # Import required packages
+    import time
+    from datetime import timedelta
     # Parse command line arguments
     parser = argparse.ArgumentParser(description=f'''
 + {VERSION_NAME} v{VERSION} +
