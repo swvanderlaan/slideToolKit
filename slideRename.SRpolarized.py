@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 """
-slideRenameRSpolarized.py
+slideRenameSRpolarized.py
 
 This script renames SR_POLARIZED whole-slide images which are stored as .tif files 
 and are named according to the T_NUMBER, {T_NUMBER}.tif. The script renames the files 
-to AE{STUDY_NUMBER}.{T_NUMBER}.SR_POL.tif.
+to {STUDY_TYPE}{STUDY_NUMBER}.{T_NUMBER}.SR_POLARIZED.tif.
 
 This script renames the .tif files in a directory (`--input-dir`) based on a lookup table 
 in a CSV file (`--input-csv`). The CSV file should contain the following columns: 
@@ -13,21 +13,32 @@ in a CSV file (`--input-csv`). The CSV file should contain the following columns
 - T_NUMBER, e.g., T01-12345; note that when no T_NUMBER is known, the column should be empty,
 - UPID, e.g., UPID01234,
 - informedconsent, e.g. 1. 
-All changes are logged to a log file (`--log`).
+The `--studytype` flag should be used to specify the study type prefix (e.g., AE, AAA). All 
+changes are logged to a log file (`--log`).
 
 Optionally, the script can output verbose information (`--verbose`).
 
 Example usage:
-    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --log logfilename --verbose
+    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose
+
+Options:
+    -i, --input-csv: Input CSV file containing T_NUMBER and STUDY_NUMBER. Required.
+    -d, --input-dir: Input directory containing .tif files to be renamed. Required.
+    -s, --studytype: Study type prefix (e.g., AE, AAA). Required.
+    -l, --log: Base name for log file. Appended with .rename_sr_polarized.log. Required.
+    -v, --verbose: Enable verbose mode for more detailed output. Optional.
+    -n, --dry-run: Perform a dry run (report in the terminal, no actual file operations). Optional.
+    -V, --version: Show program's version number and exit.
 
 """
 
 # Version information
 # Change log:
+# * v1.0.2 (2024-10-16): Fixed issue where different variations of T-numbers were not handled properly. Added --stydytype.
 # * v1.0.1 (2024-10-16): Fixed issue where T-numbers were not correctly extracted from filenames, and padded the number after the dash to 5 digits.
 # * v1.0.0 (2024-10-16): Initial version.
-VERSION_NAME = 'slideRenameRSpolarized'
-VERSION = '1.0.1'
+VERSION_NAME = 'slideRenameSRpolarized'
+VERSION = '1.0.2'
 VERSION_DATE = '2024-10-16'
 COPYRIGHT = 'Copyright 1979-2024. Tim van de Kerkhof & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -52,8 +63,8 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 Reference: http://opensource.org.
 '''
 
+# Import required packages
 import pandas as pd
-import numpy as np
 import glob
 import os
 import argparse
@@ -98,11 +109,11 @@ def add_version_if_exists(filepath):
 
 # Function to extract T-number and additional info
 def extract_tnum_and_info(filename):
-    # Regular expression to match T-number pattern (e.g., T01-12345)
-    match = re.search(r'(T\d{2})-(\d+)', filename)
+    # Regular expression to match T-number pattern (e.g., T01-12345 or T1-12345)
+    match = re.search(r'(T\d{1,2})[-_ ](\d+)', filename)  # Handles separators like _, space, or -
     if match:
-        tnum_part1 = match.group(1)  # T01 part
-        tnum_part2 = match.group(2).zfill(5)  # Pad the number after the dash to 5 digits
+        tnum_part1 = match.group(1)  # Txx part (T1 or T01)
+        tnum_part2 = match.group(2).zfill(5)  # Ensure the number after the separator has 5 digits
         tnum = f"{tnum_part1}-{tnum_part2}"
         # Remove T-number from the rest of the filename and get the additional info
         additional_info = filename.replace(match.group(0), "").replace(".tif", "").strip().replace(" ", ".")
@@ -111,12 +122,12 @@ def extract_tnum_and_info(filename):
         return None, None  # Return None if no match is found
 
 # Main renaming function
-def rename_tif_files(input_csv, input_dir, log_filename, verbose, dry_run):
+def rename_tif_files(input_csv, input_dir, studytype, log_filename, verbose, dry_run):
     # Set up logging
     logger = setup_logger("slideRenameRSpolarized", log_filename, verbose)
     
     # Read CSV
-    logger.info(f"Reading TNUM_CONSENT from: {input_csv}")
+    logger.info(f"Reading studynumber-t-number list from: {input_csv}")
     TNUMDF = pd.read_csv(input_csv)
 
     # Process all TIF files in the input directory
@@ -132,8 +143,9 @@ def rename_tif_files(input_csv, input_dir, log_filename, verbose, dry_run):
             index = TNUMDF.index[TNUMDF['T_NUMBER'] == tnum]
             if index.any():
                 index = index[0]
-                SAMPLEID = "AE" + str(TNUMDF.at[index, 'STUDY_NUMBER'])
-                newname = os.path.join(input_dir, f"{SAMPLEID}.{tnum}.{additional_info}.tif")
+                SAMPLEID = studytype + str(TNUMDF.at[index, 'STUDY_NUMBER'])  # Use studytype flag value here
+                # Adding SR_POLARIZED to the file name
+                newname = os.path.join(input_dir, f"{SAMPLEID}.{tnum}.SR_POLARIZED.tif")
                 origname = tif
                 
                 # Check if file with newname exists and add version if necessary
@@ -148,6 +160,7 @@ def rename_tif_files(input_csv, input_dir, log_filename, verbose, dry_run):
                 if not dry_run:
                     os.rename(origname, newname)
                 else:
+                    # In dry run mode, log the rename and simulate it
                     logger.info(f"Dry run: {origname} would be renamed to {newname}")
                     if verbose:
                         print(f"Dry run: {origname} would be renamed to {newname}")
@@ -165,20 +178,23 @@ def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description=f'''
 + {VERSION_NAME} v{VERSION} +
-This script renames .tif files in a directory (`--input-dir`) based on a lookup table 
+This script renames SR_POLARIZED whole-slide images which are stored as .tif files 
+and are named according to the T_NUMBER, [T_NUMBER].tif. The script renames the files 
+to [STUDY_TYPE][STUDY_NUMBER].[T_NUMBER].SR_POLARIZED.tif.
+
+This script renames the .tif files in a directory (`--input-dir`) based on a lookup table 
 in a CSV file (`--input-csv`). The CSV file should contain the following columns: 
-- STUDY_NUMBER, 
-- T_NUMBER, 
-- UPID, 
-- informedconsent. 
-If there is no value the column should be empty. The .tif files are expected to be of 
-the format T_NUMBER.tif. The script will rename the files to AE{STUDY_NUMBER}.{T_NUMBER}.SR_POL.tif.
-All changes are logged to a log file (`--log`).
+- STUDY_NUMBER, e.g., AE1234,
+- T_NUMBER, e.g., T01-12345; note that when no T_NUMBER is known, the column should be empty,
+- UPID, e.g., UPID01234,
+- informedconsent, e.g. 1. 
+The `--studytype` flag should be used to specify the study type prefix (e.g., AE, AAA). All 
+changes are logged to a log file (`--log`).
 
 Optionally, the script can output verbose information (`--verbose`).
 
 Example usage:
-    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --log logfilename --verbose
+    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose
 
         ''',
         epilog=f'''
@@ -188,6 +204,8 @@ Example usage:
                         help="Input CSV file containing T_NUMBER and STUDY_NUMBER. Required.")
     parser.add_argument("-d", "--input-dir", type=str, required=True,
                         help="Input directory containing .tif files to be renamed. Required.")
+    parser.add_argument("-s", "--studytype", type=str, required=True,
+                        help="Study type prefix (e.g., AE, AAA). Required.")     
     parser.add_argument("-l", "--log", type=str, required=True,
                         help="Base name for log file. Appended with .rename_sr_polarized.log. Required.")
     parser.add_argument("-v", "--verbose", action="store_true", 
@@ -199,8 +217,8 @@ Example usage:
 
     args = parser.parse_args()
 
-    start_time = time.time()  # Add this line to start the timer
-    
+    start_time = time.time()  
+
     # Set up the logger
     logger = setup_logger(VERSION_NAME, args.log, args.verbose)
 
@@ -208,17 +226,18 @@ Example usage:
     logger.info(f"Renaming .tif files for SR_POLARIZED whole-slide images.")
 
     # Report the input arguments
-    logger.info(f"\nInput CSV.......: {args.input_csv}")
-    logger.info(f"Input directory.: {args.input_dir}")
-    logger.info(f"Log file........: {args.log}")
-    logger.info(f"Verbose.........: {args.verbose}")
-    logger.info(f"Dry run.........: {args.dry_run}")
+    logger.info(f"\nInput CSV.........: {args.input_csv}")
+    logger.info(f"Input directory...: {args.input_dir}")
+    logger.info(f"Study type........: {args.studytype}")
+    logger.info(f"Log file..........: {args.log}")
+    logger.info(f"Dry run...........: {args.dry_run}")
+    logger.info(f"Verbose...........: {args.verbose}")
 
     if args.dry_run:
         logger.info("\nDry run mode: no actual file operations will be performed.")
 
     # Call the renaming function
-    rename_tif_files(args.input_csv, args.input_dir, args.log, args.verbose, args.dry_run)
+    rename_tif_files(args.input_csv, args.input_dir, args.studytype, args.log, args.verbose, args.dry_run)
 
     # Execution time reporting
     elapsed_time = time.time() - start_time
