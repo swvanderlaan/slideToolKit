@@ -39,6 +39,7 @@ Options:
 
 # Version information
 # Change log:
+# * v1.0.9 (2024-10-16): Added functionality to install `pyreadstat` via conda if it is not found.
 # * v1.0.8 (2024-10-16): Modified `--input-db` to accept file name and format in a single argument (e.g., "filename.csv csv").
 # * v1.0.7 (2024-10-16): Added `--input-db` option to handle both CSV and SPSS formats.
 # * v1.0.6 (2024-10-16): Fixed issue where the logging info was not correctly displayed.
@@ -49,7 +50,7 @@ Options:
 # * v1.0.1 (2024-10-16): Fixed issue where T-numbers were not correctly extracted from filenames, and padded the number after the dash to 5 digits.
 # * v1.0.0 (2024-10-16): Initial version.
 VERSION_NAME = 'slideRenameSRpolarized'
-VERSION = '1.0.8'
+VERSION = '1.0.9'
 VERSION_DATE = '2024-10-16'
 COPYRIGHT = 'Copyright 1979-2024. Tim van de Kerkhof & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -79,6 +80,7 @@ import glob
 import argparse
 import os
 import re
+import subprocess
 
 # Set up logger function
 def setup_logger(log_name, log_file, verbose):
@@ -104,6 +106,17 @@ def setup_logger(log_name, log_file, verbose):
     logger.addHandler(console_handler)
 
     return logger
+
+# Function to check if pyreadstat is installed and install it if necessary
+def check_and_install_pyreadstat():
+    try:
+        import pyreadstat
+    except ImportError:
+        print("pyreadstat is not installed. Attempting to install it using conda...")
+        try:
+            subprocess.check_call(["conda", "install", "-y", "pyreadstat"])
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install pyreadstat: {e}. Please install it manually using 'conda install pyreadstat'.")
 
 # Function to add version suffix (v1, v2, v3, etc.) to avoid overwriting files
 def add_version_if_exists(filepath):
@@ -135,6 +148,7 @@ def load_database(input_db, db_type):
     if db_type == 'csv':
         return pd.read_csv(input_db)
     elif db_type == 'spss':
+        check_and_install_pyreadstat()  # Ensure pyreadstat is installed before using SPSS
         return pd.read_spss(input_db)
     else:
         raise ValueError("Unsupported database type. Use 'csv' or 'spss'.")
