@@ -39,6 +39,7 @@ Options:
 
 # Version information
 # Change log:
+# * v1.0.10 (2024-10-16): Modified to only load relevant columns from SPSS to avoid datetime errors and added installation of pyreadstat.
 # * v1.0.9 (2024-10-16): Added functionality to install `pyreadstat` via conda if it is not found.
 # * v1.0.8 (2024-10-16): Modified `--input-db` to accept file name and format in a single argument (e.g., "filename.csv csv").
 # * v1.0.7 (2024-10-16): Added `--input-db` option to handle both CSV and SPSS formats.
@@ -88,20 +89,16 @@ def setup_logger(log_name, log_file, verbose):
     logger = logging.getLogger(log_name)
     logger.setLevel(logging.DEBUG if verbose else logging.INFO)
 
-    # Formatter for the log messages
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(levellevelname)s - %(message)s')
 
-    # File handler to log to a file
     file_handler = logging.FileHandler(log_file + '.rename_sr_polarized.log')
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.DEBUG if verbose else logging.INFO)
 
-    # Console handler to log to the console (stdout)
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
     console_handler.setLevel(logging.DEBUG if verbose else logging.INFO)
 
-    # Add both handlers to the logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
 
@@ -115,6 +112,7 @@ def check_and_install_pyreadstat():
         print("pyreadstat is not installed. Attempting to install it using conda...")
         try:
             subprocess.check_call(["conda", "install", "-y", "pyreadstat"])
+            import pyreadstat  # Try again after installation
         except subprocess.CalledProcessError as e:
             print(f"Failed to install pyreadstat: {e}. Please install it manually using 'conda install pyreadstat'.")
 
@@ -142,14 +140,15 @@ def extract_tnum_and_info(filename):
     else:
         return None, None  # Return None if no match is found
 
-# Function to load the database (CSV or SPSS)
+# Function to load the database (CSV or SPSS) and only extract relevant columns
 def load_database(input_db, db_type):
     import pandas as pd  # Import pandas here to avoid unnecessary imports
+    check_and_install_pyreadstat()  # Ensure pyreadstat is installed
     if db_type == 'csv':
         return pd.read_csv(input_db)
     elif db_type == 'spss':
-        check_and_install_pyreadstat()  # Ensure pyreadstat is installed before using SPSS
-        return pd.read_spss(input_db)
+        import pyreadstat
+        return pyreadstat.read_sav(input_db, usecols=['STUDY_NUMBER', 'T_NUMBER', 'UPID', 'informedconsent'])[0]
     else:
         raise ValueError("Unsupported database type. Use 'csv' or 'spss'.")
 
