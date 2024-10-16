@@ -8,13 +8,15 @@ and are named according to the T_NUMBER, {T_NUMBER}.tif. The script renames the 
 to {STUDY_TYPE}{STUDY_NUMBER}.{T_NUMBER}.SR_POLARIZED.tif.
 
 This script renames the .tif files in a directory (`--input-dir`) based on a lookup table 
-in a CSV file (`--input-csv`). The CSV file should contain the following columns: 
+in a database file (`--input-db`) of either CSV or SPSS format. 
+The database should contain the following columns: 
 - STUDY_NUMBER, e.g., AE1234,
-- T_NUMBER, e.g., T01-12345; note that when no T_NUMBER is known, the column should be empty,
+- T_NUMBER, e.g., T01-12345,
 - UPID, e.g., UPID01234,
 - informedconsent, e.g. 1. 
-The `--studytype` flag should be used to specify the study type prefix (e.g., AE, AAA). All 
-changes are logged to a log file (`--log`).
+
+The `--studytype` flag should be used to specify the study type prefix (e.g., AE, AAA). 
+All changes are logged to a log file (`--log`).
 
 Additional options:
 - `--verbose` to output more detailed information.
@@ -22,10 +24,10 @@ Additional options:
 - `--version` to show the program's version number and exit.
 
 Example usage:
-    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose --dry-run
+    python3 slideRenameSRpolarized.py --input-db "input.csv csv" --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose --dry-run
 
 Options:
-    -i, --input-csv: Input CSV file containing T_NUMBER and STUDY_NUMBER. Required.
+    -i, --input-db: Input database file (CSV or SPSS). Specify the filename followed by the type (csv or spss). Required.
     -d, --input-dir: Input directory containing .tif files to be renamed. Required.
     -s, --studytype: Study type prefix (e.g., AE, AAA). Required.
     -l, --log: Base name for log file. Appended with .rename_sr_polarized.log. Required.
@@ -37,15 +39,17 @@ Options:
 
 # Version information
 # Change log:
+# * v1.0.8 (2024-10-16): Modified `--input-db` to accept file name and format in a single argument (e.g., "filename.csv csv").
+# * v1.0.7 (2024-10-16): Added `--input-db` option to handle both CSV and SPSS formats.
 # * v1.0.6 (2024-10-16): Fixed issue where the logging info was not correctly displayed.
 # * v1.0.5 (2024-10-16): Fixed an issue where the extension was not correctly added to the new filename. Fixed an issue where the version number was not correctly added to the new filename.
 # * v1.0.4 (2024-10-16): Fixed an issue where the script was slow.
 # * v1.0.3 (2024-10-16): Expanded --help message with more detailed information. 
-# * v1.0.2 (2024-10-16): Fixed issue where different variations of T-numbers were not handled properly. Added --stydytype.
+# * v1.0.2 (2024-10-16): Fixed issue where different variations of T-numbers were not handled properly. Added --studytype.
 # * v1.0.1 (2024-10-16): Fixed issue where T-numbers were not correctly extracted from filenames, and padded the number after the dash to 5 digits.
 # * v1.0.0 (2024-10-16): Initial version.
 VERSION_NAME = 'slideRenameSRpolarized'
-VERSION = '1.0.6'
+VERSION = '1.0.8'
 VERSION_DATE = '2024-10-16'
 COPYRIGHT = 'Copyright 1979-2024. Tim van de Kerkhof & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -125,15 +129,24 @@ def extract_tnum_and_info(filename):
     else:
         return None, None  # Return None if no match is found
 
-# Main renaming function
-def rename_tif_files(input_csv, input_dir, studytype, log_filename, verbose, dry_run):
+# Function to load the database (CSV or SPSS)
+def load_database(input_db, db_type):
     import pandas as pd  # Import pandas here to avoid unnecessary imports
+    if db_type == 'csv':
+        return pd.read_csv(input_db)
+    elif db_type == 'spss':
+        return pd.read_spss(input_db)
+    else:
+        raise ValueError("Unsupported database type. Use 'csv' or 'spss'.")
+
+# Main renaming function
+def rename_tif_files(input_db, db_type, input_dir, studytype, log_filename, verbose, dry_run):
     # Set up logging
     logger = setup_logger("slideRenameRSpolarized", log_filename, verbose)
     
-    # Read CSV
-    logger.info(f"Reading studynumber-t-number list from: {input_csv}")
-    TNUMDF = pd.read_csv(input_csv)
+    # Load the input database
+    logger.info(f"Loading database from {input_db} as {db_type}.")
+    TNUMDF = load_database(input_db, db_type)
 
     # Process all TIF files in the input directory
     for tif in glob.glob(os.path.join(input_dir, "*.tif")):
@@ -144,7 +157,7 @@ def rename_tif_files(input_csv, input_dir, studytype, log_filename, verbose, dry
         tnum, additional_info = extract_tnum_and_info(tif)
         
         if tnum:
-            # Match T-number with the CSV data to get the STUDY_NUMBER
+            # Match T-number with the database data to get the STUDY_NUMBER
             index = TNUMDF.index[TNUMDF['T_NUMBER'] == tnum]
             if index.any():
                 index = index[0]
@@ -170,9 +183,9 @@ def rename_tif_files(input_csv, input_dir, studytype, log_filename, verbose, dry
                     if verbose:
                         print(f"Dry run: {origname} would be renamed to {newname}")
             else:
-                logger.warning(f"T_NUMBER {tnum} not found in {input_csv}. Skipping file: {tif}")
+                logger.warning(f"T_NUMBER {tnum} not found in {input_db}. Skipping file: {tif}")
                 if verbose:
-                    print(f"Warning: T_NUMBER {tnum} not found in {input_csv}. Skipping file: {tif}")
+                    print(f"Warning: T_NUMBER {tnum} not found in {input_db}. Skipping file: {tif}")
         else:
             logger.warning(f"Could not extract T_NUMBER from {tif}. Skipping file.")
             if verbose:
@@ -191,13 +204,8 @@ and are named according to the T_NUMBER, [T_NUMBER].tif. The script renames the 
 to [STUDY_TYPE][STUDY_NUMBER].[T_NUMBER].SR_POLARIZED.tif.
 
 This script renames the .tif files in a directory (`--input-dir`) based on a lookup table 
-in a CSV file (`--input-csv`). The CSV file should contain the following columns: 
-- STUDY_NUMBER, e.g., AE1234,
-- T_NUMBER, e.g., T01-12345; note that when no T_NUMBER is known, the column should be empty,
-- UPID, e.g., UPID01234,
-- informedconsent, e.g. 1. 
-The `--studytype` flag should be used to specify the study type prefix (e.g., AE, AAA). All 
-changes are logged to a log file (`--log`).
+in a database file (`--input-db`) in either CSV or SPSS format. The database should contain 
+STUDY_NUMBER and T_NUMBER columns.
 
 Additional options:
 - `--verbose` to output more detailed information.
@@ -205,14 +213,13 @@ Additional options:
 - `--version` to show the program's version number and exit.
 
 Example usage:
-    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose --dry-run
-
+    python3 slideRenameSRpolarized.py --input-db "input.csv csv" --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose --dry-run
         ''',
         epilog=f'''
 + {VERSION_NAME} v{VERSION}. {COPYRIGHT} \n{COPYRIGHT_TEXT}+''', 
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("-i", "--input-csv", type=str, required=True,
-                        help="Input CSV file containing T_NUMBER and STUDY_NUMBER. Required.")
+    parser.add_argument("-i", "--input-db", type=str, nargs=2, metavar=("FILE", "TYPE"),
+                        help="Input database file (CSV or SPSS). Specify the filename followed by the type (csv or spss). Required.")
     parser.add_argument("-d", "--input-dir", type=str, required=True,
                         help="Input directory containing .tif files to be renamed. Required.")
     parser.add_argument("-s", "--studytype", type=str, required=True,
@@ -237,7 +244,8 @@ Example usage:
     logger.info(f"Renaming .tif files for SR_POLARIZED whole-slide images.")
 
     # Report the input arguments
-    logger.info(f"Input CSV.........: {args.input_csv}")
+    logger.info(f"Input DB..........: {args.input_db[0]}")
+    logger.info(f"DB Type...........: {args.input_db[1]}")
     logger.info(f"Input directory...: {args.input_dir}")
     logger.info(f"Study type........: {args.studytype}")
     logger.info(f"Log file..........: {args.log}")
@@ -248,7 +256,7 @@ Example usage:
         logger.info("Dry run mode: no actual file operations will be performed.")
 
     # Call the renaming function
-    rename_tif_files(args.input_csv, args.input_dir, args.studytype, args.log, args.verbose, args.dry_run)
+    rename_tif_files(args.input_db[0], args.input_db[1], args.input_dir, args.studytype, args.log, args.verbose, args.dry_run)
 
     # Execution time reporting
     elapsed_time = time.time() - start_time
