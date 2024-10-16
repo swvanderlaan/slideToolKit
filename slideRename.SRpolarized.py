@@ -37,14 +37,15 @@ Options:
 
 # Version information
 # Change log:
-# * v1.0.5 (2024-10-16): Fixed an issue where the extension was not correctly added to the new filename.
+# * v1.0.6 (2024-10-16): Fixed issue where the logging info was not correctly displayed.
+# * v1.0.5 (2024-10-16): Fixed an issue where the extension was not correctly added to the new filename. Fixed an issue where the version number was not correctly added to the new filename.
 # * v1.0.4 (2024-10-16): Fixed an issue where the script was slow.
 # * v1.0.3 (2024-10-16): Expanded --help message with more detailed information. 
 # * v1.0.2 (2024-10-16): Fixed issue where different variations of T-numbers were not handled properly. Added --stydytype.
 # * v1.0.1 (2024-10-16): Fixed issue where T-numbers were not correctly extracted from filenames, and padded the number after the dash to 5 digits.
 # * v1.0.0 (2024-10-16): Initial version.
 VERSION_NAME = 'slideRenameSRpolarized'
-VERSION = '1.0.5'
+VERSION = '1.0.6'
 VERSION_DATE = '2024-10-16'
 COPYRIGHT = 'Copyright 1979-2024. Tim van de Kerkhof & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -232,11 +233,11 @@ Example usage:
     # Set up the logger
     logger = setup_logger(VERSION_NAME, args.log, args.verbose)
 
-    logger.info(f"\n+ {VERSION_NAME} {VERSION} ({VERSION_DATE}) +")
+    logger.info(f"+ {VERSION_NAME} {VERSION} ({VERSION_DATE}) +")
     logger.info(f"Renaming .tif files for SR_POLARIZED whole-slide images.")
 
     # Report the input arguments
-    logger.info(f"\nInput CSV.........: {args.input_csv}")
+    logger.info(f"Input CSV.........: {args.input_csv}")
     logger.info(f"Input directory...: {args.input_dir}")
     logger.info(f"Study type........: {args.studytype}")
     logger.info(f"Log file..........: {args.log}")
@@ -244,7 +245,7 @@ Example usage:
     logger.info(f"Verbose...........: {args.verbose}")
 
     if args.dry_run:
-        logger.info("\nDry run mode: no actual file operations will be performed.")
+        logger.info("Dry run mode: no actual file operations will be performed.")
 
     # Call the renaming function
     rename_tif_files(args.input_csv, args.input_dir, args.studytype, args.log, args.verbose, args.dry_run)
@@ -253,7 +254,7 @@ Example usage:
     elapsed_time = time.time() - start_time
     formatted_time = str(timedelta(seconds=elapsed_time))
 
-    logger.info(f"\nScript total execution time: {formatted_time}")
+    logger.info(f"Script total execution time: {formatted_time}")
     
 if __name__ == '__main__':
     main()
