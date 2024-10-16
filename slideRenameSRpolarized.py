@@ -24,9 +24,10 @@ Example usage:
 
 # Version information
 # Change log:
+# * v1.0.1 (2024-10-16): Fixed issue where T-numbers were not correctly extracted from filenames, and padded the number after the dash to 5 digits.
 # * v1.0.0 (2024-10-16): Initial version.
 VERSION_NAME = 'slideRenameRSpolarized'
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 VERSION_DATE = '2024-10-16'
 COPYRIGHT = 'Copyright 1979-2024. Tim van de Kerkhof & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -59,6 +60,7 @@ import argparse
 import logging
 from datetime import timedelta
 import time
+import re
 
 # Set up logger function
 def setup_logger(log_name, log_file, verbose):
@@ -94,6 +96,20 @@ def add_version_if_exists(filepath):
         version += 1
     return new_filepath
 
+# Function to extract T-number and additional info
+def extract_tnum_and_info(filename):
+    # Regular expression to match T-number pattern (e.g., T01-12345)
+    match = re.search(r'(T\d{2})-(\d+)', filename)
+    if match:
+        tnum_part1 = match.group(1)  # T01 part
+        tnum_part2 = match.group(2).zfill(5)  # Pad the number after the dash to 5 digits
+        tnum = f"{tnum_part1}-{tnum_part2}"
+        # Remove T-number from the rest of the filename and get the additional info
+        additional_info = filename.replace(match.group(0), "").replace(".tif", "").strip().replace(" ", ".")
+        return tnum, additional_info
+    else:
+        return None, None  # Return None if no match is found
+
 # Main renaming function
 def rename_tif_files(input_csv, input_dir, log_filename, verbose, dry_run):
     # Set up logging
@@ -103,52 +119,46 @@ def rename_tif_files(input_csv, input_dir, log_filename, verbose, dry_run):
     logger.info(f"Reading TNUM_CONSENT from: {input_csv}")
     TNUMDF = pd.read_csv(input_csv)
 
-    tifdict = {}
-    origdict = {}
-    
     # Process all TIF files in the input directory
     for tif in glob.glob(os.path.join(input_dir, "*.tif")):
-        # Remove spaces from file name
+        # Remove spaces from file name for processing
         tif_no_space = tif.replace(" ", "")
-        newtif = tif_no_space[:4].replace(" ","-") + tif_no_space[4:].replace(" ","_")
         
-        # Extract T number from file name
-        if "_" in newtif:
-            tnum = newtif[newtif.index("T"):newtif.index("_")]
-        else:
-            tnum = newtif[newtif.index("T"):newtif.index(".")]
+        # Extract T-number and additional info from the filename
+        tnum, additional_info = extract_tnum_and_info(tif)
         
-        tifdict[newtif] = tnum
-        origdict[newtif] = tif_no_space
-
-    # Rename files based on TNUMDF lookup
-    for tifname, tnumber in tifdict.items():
-        index = TNUMDF.index[TNUMDF['T_NUMBER'] == tnumber]
-        if index.any():
-            index = index[0]
-            SAMPLEID = "AE" + str(TNUMDF.at[index, 'STUDY_NUMBER'])
-            newname = os.path.join(input_dir, SAMPLEID + "." + tifname + ".SR_POL.tif")
-            origname = origdict[tifname]
-            
-            # Check if file with newname exists and add version if necessary
-            newname = add_version_if_exists(newname)
-            
-            # Log and optionally print the renaming process
-            logger.info(f"Renaming: {origname} to {newname}")
-            if verbose:
-                print(f"Renaming: {origname} to {newname}")
-            
-            # Only perform renaming if not in dry-run mode
-            if not dry_run:
-                os.rename(origname, newname)
-            else:
-                logger.info(f"Dry run: {origname} would be renamed to {newname}")
+        if tnum:
+            # Match T-number with the CSV data to get the STUDY_NUMBER
+            index = TNUMDF.index[TNUMDF['T_NUMBER'] == tnum]
+            if index.any():
+                index = index[0]
+                SAMPLEID = "AE" + str(TNUMDF.at[index, 'STUDY_NUMBER'])
+                newname = os.path.join(input_dir, f"{SAMPLEID}.{tnum}.{additional_info}.tif")
+                origname = tif
+                
+                # Check if file with newname exists and add version if necessary
+                newname = add_version_if_exists(newname)
+                
+                # Log and optionally print the renaming process
+                logger.info(f"Renaming: {origname} to {newname}")
                 if verbose:
-                    print(f"Dry run: {origname} would be renamed to {newname}")
+                    print(f"Renaming: {origname} to {newname}")
+                
+                # Only perform renaming if not in dry-run mode
+                if not dry_run:
+                    os.rename(origname, newname)
+                else:
+                    logger.info(f"Dry run: {origname} would be renamed to {newname}")
+                    if verbose:
+                        print(f"Dry run: {origname} would be renamed to {newname}")
+            else:
+                logger.warning(f"T_NUMBER {tnum} not found in {input_csv}. Skipping file: {tif}")
+                if verbose:
+                    print(f"Warning: T_NUMBER {tnum} not found in {input_csv}. Skipping file: {tif}")
         else:
-            logger.warning(f"T_NUMBER {tnumber} not found in {input_csv}. Skipping file: {tifname}")
+            logger.warning(f"Could not extract T_NUMBER from {tif}. Skipping file.")
             if verbose:
-                print(f"Warning: T_NUMBER {tnumber} not found in {input_csv}. Skipping file: {tifname}")
+                print(f"Warning: Could not extract T_NUMBER from {tif}. Skipping file.")
 
 # Main function
 def main():
@@ -189,7 +199,7 @@ Example usage:
 
     args = parser.parse_args()
 
-    start_time = time.time()
+    start_time = time.time()  # Add this line to start the timer
     
     # Set up the logger
     logger = setup_logger(VERSION_NAME, args.log, args.verbose)
