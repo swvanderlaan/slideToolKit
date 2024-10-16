@@ -37,12 +37,13 @@ Options:
 
 # Version information
 # Change log:
+# * v1.0.4 (2024-10-16): Fixed an issue where the script was slow.
 # * v1.0.3 (2024-10-16): Expanded --help message with more detailed information. 
 # * v1.0.2 (2024-10-16): Fixed issue where different variations of T-numbers were not handled properly. Added --stydytype.
 # * v1.0.1 (2024-10-16): Fixed issue where T-numbers were not correctly extracted from filenames, and padded the number after the dash to 5 digits.
 # * v1.0.0 (2024-10-16): Initial version.
 VERSION_NAME = 'slideRenameSRpolarized'
-VERSION = '1.0.3'
+VERSION = '1.0.4'
 VERSION_DATE = '2024-10-16'
 COPYRIGHT = 'Copyright 1979-2024. Tim van de Kerkhof & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -68,17 +69,13 @@ Reference: http://opensource.org.
 '''
 
 # Import required packages
-import pandas as pd
 import glob
-import os
 import argparse
-import logging
-from datetime import timedelta
-import time
 import re
 
 # Set up logger function
 def setup_logger(log_name, log_file, verbose):
+    import logging
     logger = logging.getLogger(log_name)
     logger.setLevel(logging.DEBUG if verbose else logging.INFO)
 
@@ -179,6 +176,10 @@ def rename_tif_files(input_csv, input_dir, studytype, log_filename, verbose, dry
 
 # Main function
 def main():
+    # Import necessary packages
+    import pandas as pd  
+    import os
+    import time
     # Parse command line arguments
     parser = argparse.ArgumentParser(description=f'''
 + {VERSION_NAME} v{VERSION} +
