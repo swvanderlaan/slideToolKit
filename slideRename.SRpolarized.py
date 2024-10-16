@@ -16,10 +16,13 @@ in a CSV file (`--input-csv`). The CSV file should contain the following columns
 The `--studytype` flag should be used to specify the study type prefix (e.g., AE, AAA). All 
 changes are logged to a log file (`--log`).
 
-Optionally, the script can output verbose information (`--verbose`).
+Additional options:
+- `--verbose` to output more detailed information.
+- `--dry-run` to perform a dry run (report in the terminal, no actual file operations).
+- `--version` to show the program's version number and exit.
 
 Example usage:
-    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose
+    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose --dry-run
 
 Options:
     -i, --input-csv: Input CSV file containing T_NUMBER and STUDY_NUMBER. Required.
@@ -34,11 +37,12 @@ Options:
 
 # Version information
 # Change log:
+# * v1.0.3 (2024-10-16): Expanded --help message with more detailed information. 
 # * v1.0.2 (2024-10-16): Fixed issue where different variations of T-numbers were not handled properly. Added --stydytype.
 # * v1.0.1 (2024-10-16): Fixed issue where T-numbers were not correctly extracted from filenames, and padded the number after the dash to 5 digits.
 # * v1.0.0 (2024-10-16): Initial version.
 VERSION_NAME = 'slideRenameSRpolarized'
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 VERSION_DATE = '2024-10-16'
 COPYRIGHT = 'Copyright 1979-2024. Tim van de Kerkhof & Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -191,10 +195,13 @@ in a CSV file (`--input-csv`). The CSV file should contain the following columns
 The `--studytype` flag should be used to specify the study type prefix (e.g., AE, AAA). All 
 changes are logged to a log file (`--log`).
 
-Optionally, the script can output verbose information (`--verbose`).
+Additional options:
+- `--verbose` to output more detailed information.
+- `--dry-run` to perform a dry run (report in the terminal, no actual file operations).
+- `--version` to show the program's version number and exit.
 
 Example usage:
-    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose
+    python3 slideRenameSRpolarized.py --input-csv input.csv --input-dir /path/to/tif/files --studytype AE --log logfilename --verbose --dry-run
 
         ''',
         epilog=f'''
