@@ -43,6 +43,7 @@ _gsdata_/*
 #################
 # We want to exclude *input* and *output* images (i.e. tiles, NDPI, TIFs); 
 # these are 1) personal data, and 2) too large.
+development/
 upgrade_study/_temp/*
 upgrade_study/CD14/*/*.ndpi
 upgrade_study/CD14/*/*.TIF
@@ -69,6 +70,11 @@ upgrade_study/SMA/*/*.TIF
 upgrade_study/SMA/AE4780.SMA/*
 upgrade_study/SR/*/*.ndpi
 upgrade_study/SR/*/*.TIF
+upgrade_study/EVG/AE1203.EVG
+upgrade_study/EVG/AE2633.EVG.910
+upgrade_study/EVG/AE2937.EVG
+upgrade_study/SMA/AE1468.SMA
+upgrade_study/SMA/AE4780.SMA
 
 # SLIDES FOLDER #
 #################
