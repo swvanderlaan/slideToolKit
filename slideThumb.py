@@ -12,12 +12,13 @@ from sys import exit
 
 # Version information
 # Change log:
+# * v1.1.1 (2025-08-29): Fixed --help for --display function.
 # * v1.1.0 (2024-09-26): Overhaul to make the script more modular, define functions, and easier to read.
 # * v1.0.3 (2022-09-07): Initial version.
 VERSION_NAME = 'slideThumb'
-VERSION = '1.1.0'
-VERSION_DATE = '2024-09-26'
-COPYRIGHT = 'Copyright 1979-2024. Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
+VERSION = '1.1.1'
+VERSION_DATE = '2025-08-29'
+COPYRIGHT = 'Copyright 1979-2025. Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
 The MIT License (MIT).
 
@@ -73,7 +74,7 @@ This script will get thumbnails from (a list of given) images for quick inspecti
         formatter_class=argparse.RawTextHelpFormatter
     )
 
-    parser.add_argument('-d', '--display', help="Also show thumbnail on display, default simply writes thumbnails. Optional.", action='store_true')
+    parser.add_argument('-d', '--display', help="Only display the image as thumbnail, no thumbnail image is written. Optional.", action='store_true')
     parser.add_argument('-o', '--outdir', help="Output dir, default is present working directory. Optional.", default="<<SAME>>", type=str)
     parser.add_argument('-s', '--suffix', help="Suffix to append to end of file, default is 'thumb' for thumbnail. Optional.", default="", type=str)
     parser.add_argument('-t', '--type', help="Output file type, default is png (which is slower), other options are tif. Optional.", default="png", type=str)
