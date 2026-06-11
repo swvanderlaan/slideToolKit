@@ -24,13 +24,14 @@ except Exception:
 
 # Version information
 # Change log:
+# * v1.3.2 (2026-06-11): Update --batch-fix stain canonical forms to uppercase (SMA, EVG, GLYCC, HE, SR, CD34, CD68); add dot-format parser so already-renamed files (e.g. AE4594.a-SMA.ndpi) are also corrected.
 # * v1.3.1 (2026-06-11): Fix --batch-fix: skip files with no stain name (parsed as "-"); detect and report intra-directory target collisions in both dry-run and apply modes.
 # * v1.3.0 (2026-06-11): Add --batch-fix mode to normalise scanner-generated NDPI filenames to AENNNN.STAIN.ndpi without opening slides.
 # * v1.2.0 (2025-08-25): Add --preview {cv2,none}, --resize WxH, --dry-run, --to-upper/--to-lower, --rotate {0,90,180,270}. Add automatic barcode decoding (Data Matrix via pylibdmtx, other barcodes via pyzbar).
 # * v1.1.0 (2024-09-26): Overhaul to make the script more modular, define functions, and easier to read.
 # * v1.0.0 (2023-12-15): Initial version.
 VERSION_NAME = 'slideRename'
-VERSION = '1.3.1'
+VERSION = '1.3.2'
 VERSION_DATE = '2026-06-11'
 COPYRIGHT = 'Copyright 1979-2026. Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -59,23 +60,25 @@ Reference: http://opensource.org.
 # Batch-fix: stain normalisation + filename parser
 # ----------------------------------------
 # Canonical stain names keyed by lower-cased variant found in scanner filenames.
+# Rules: all uppercase; a-SMA → SMA; Glyc.C → GLYCC; EvG → EVG.
 _BATCH_FIX_STAIN_MAP = {
-    'a-sma':    'a-SMA',
-    'asma':     'a-SMA',
+    'a-sma':    'SMA',
+    'asma':     'SMA',
+    'sma':      'SMA',
     'he':       'HE',
     'h&e':      'HE',
     'sr':       'SR',
-    'evg':      'EvG',
-    'ev g':     'EvG',
+    'evg':      'EVG',
+    'ev g':     'EVG',
     'cd34':     'CD34',
     'cd 34':    'CD34',
     'cd68':     'CD68',
     'cd 68':    'CD68',
-    'glyc.c':   'Glyc.C',
-    'glyc. c':  'Glyc.C',
-    'glyc c':   'Glyc.C',
-    'glycc':    'Glyc.C',
-    'glyc':     'Glyc.C',
+    'glyc.c':   'GLYCC',
+    'glyc. c':  'GLYCC',
+    'glyc c':   'GLYCC',
+    'glycc':    'GLYCC',
+    'glyc':     'GLYCC',
 }
 
 # Matches scanner filenames such as:
@@ -93,8 +96,19 @@ _BATCH_FIX_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
-# Already-canonical names (AENNNN.STAIN.ndpi or AENNNN.N.STAIN.ndpi) — skip silently.
-_BATCH_FIX_CANONICAL = re.compile(r'^AE\d+(?:\.\d+)?\.[^.].+$', re.IGNORECASE)
+# Matches already dot-separated filenames that may still need stain normalisation:
+#   AE4594.a-SMA   AE4594.Glyc.C   AE5082.1.EvG
+# Stain is everything after the (optional) section dot.
+_BATCH_FIX_DOT_PATTERN = re.compile(
+    r'^AE(\d+)'                # AE + study number (no space)
+    r'(?:\.(\d))?'             # optional single-digit section
+    r'\.(.+)$',                # dot + stain (rest of stem, may itself contain dots e.g. Glyc.C)
+    re.IGNORECASE,
+)
+
+# Truly canonical: stain is uppercase letters + digits only (no dots, hyphens, lowercase).
+# Only these are skipped without inspection.
+_BATCH_FIX_CANONICAL = re.compile(r'^AE\d+(?:\.\d+)?\.([A-Z][A-Z0-9]*)$')
 
 
 def _batch_fix_normalise_stain(raw: str) -> str:
@@ -122,7 +136,7 @@ def batch_fix_directory(directory: str, apply: bool, force: bool, verbose: bool)
             counts['unchanged'] += 1
             continue
 
-        m = _BATCH_FIX_PATTERN.match(stem.strip())
+        m = _BATCH_FIX_PATTERN.match(stem.strip()) or _BATCH_FIX_DOT_PATTERN.match(stem.strip())
         if not m:
             print(f"  [SKIP  ]  {fname!r}  ← could not parse")
             counts['skipped'] += 1
