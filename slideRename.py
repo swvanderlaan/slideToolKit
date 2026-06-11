@@ -24,12 +24,13 @@ except Exception:
 
 # Version information
 # Change log:
+# * v1.3.1 (2026-06-11): Fix --batch-fix: skip files with no stain name (parsed as "-"); detect and report intra-directory target collisions in both dry-run and apply modes.
 # * v1.3.0 (2026-06-11): Add --batch-fix mode to normalise scanner-generated NDPI filenames to AENNNN.STAIN.ndpi without opening slides.
 # * v1.2.0 (2025-08-25): Add --preview {cv2,none}, --resize WxH, --dry-run, --to-upper/--to-lower, --rotate {0,90,180,270}. Add automatic barcode decoding (Data Matrix via pylibdmtx, other barcodes via pyzbar).
 # * v1.1.0 (2024-09-26): Overhaul to make the script more modular, define functions, and easier to read.
 # * v1.0.0 (2023-12-15): Initial version.
 VERSION_NAME = 'slideRename'
-VERSION = '1.3.0'
+VERSION = '1.3.1'
 VERSION_DATE = '2026-06-11'
 COPYRIGHT = 'Copyright 1979-2026. Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
@@ -107,6 +108,9 @@ def batch_fix_directory(directory: str, apply: bool, force: bool, verbose: bool)
     force  — overwrite destination if it already exists.
     """
     counts = {'renamed': 0, 'skipped': 0, 'error': 0, 'unchanged': 0}
+
+    # First pass: resolve all renames so we can detect collisions before touching anything.
+    plan = []   # list of (fname, new_name) for files that need renaming
     for fname in sorted(os.listdir(directory)):
         if not fname.lower().endswith('.ndpi'):
             continue
@@ -125,6 +129,14 @@ def batch_fix_directory(directory: str, apply: bool, force: bool, verbose: bool)
             continue
 
         study_id, section, stain_raw = m.groups()
+
+        # Reject files where no real stain was found — only a bare "-" or whitespace.
+        stain_clean = stain_raw.strip().strip('-').strip()
+        if not stain_clean:
+            print(f"  [SKIP  ]  {fname!r}  ← no stain name found (file has no stain in filename)")
+            counts['skipped'] += 1
+            continue
+
         stain = _batch_fix_normalise_stain(stain_raw)
         parts = [f"AE{study_id}"]
         if section:
@@ -136,15 +148,34 @@ def batch_fix_directory(directory: str, apply: bool, force: bool, verbose: bool)
             counts['unchanged'] += 1
             continue
 
+        plan.append((fname, new_name))
+
+    # Detect collisions: multiple sources → same target within this directory.
+    from collections import defaultdict
+    target_map = defaultdict(list)
+    for fname, new_name in plan:
+        target_map[new_name].append(fname)
+
+    # Second pass: report and execute.
+    for fname, new_name in plan:
         src = os.path.join(directory, fname)
         dst = os.path.join(directory, new_name)
+        colliders = target_map[new_name]
+        is_collision = len(colliders) > 1
+
         tag = "RENAME" if apply else "WOULD "
         print(f"  [{tag}]  {fname!r}")
         print(f"           → {new_name!r}")
+        if is_collision:
+            others = [f for f in colliders if f != fname]
+            print(f"  [WARN  ]  collision — same target also from: {others}")
 
         if apply:
-            if os.path.exists(dst) and not force:
-                print(f"  [ERROR ]  destination exists; use --force to overwrite")
+            if is_collision and not force:
+                print(f"  [ERROR ]  skipping due to collision; use --force to rename anyway")
+                counts['error'] += 1
+            elif os.path.exists(dst) and not force:
+                print(f"  [ERROR ]  destination already exists on disk; use --force to overwrite")
                 counts['error'] += 1
             else:
                 try:
@@ -154,7 +185,10 @@ def batch_fix_directory(directory: str, apply: bool, force: bool, verbose: bool)
                     print(f"  [ERROR ]  {e}")
                     counts['error'] += 1
         else:
-            counts['renamed'] += 1  # dry-run tally
+            if is_collision:
+                counts['error'] += 1   # count collisions as errors in dry-run summary
+            else:
+                counts['renamed'] += 1
 
     return counts
 
