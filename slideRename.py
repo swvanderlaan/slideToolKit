@@ -24,13 +24,14 @@ except Exception:
 
 # Version information
 # Change log:
+# * v1.3.0 (2026-06-11): Add --batch-fix mode to normalise scanner-generated NDPI filenames to AENNNN.STAIN.ndpi without opening slides.
 # * v1.2.0 (2025-08-25): Add --preview {cv2,none}, --resize WxH, --dry-run, --to-upper/--to-lower, --rotate {0,90,180,270}. Add automatic barcode decoding (Data Matrix via pylibdmtx, other barcodes via pyzbar).
 # * v1.1.0 (2024-09-26): Overhaul to make the script more modular, define functions, and easier to read.
 # * v1.0.0 (2023-12-15): Initial version.
 VERSION_NAME = 'slideRename'
-VERSION = '1.2.0'
-VERSION_DATE = '2025-08-25'
-COPYRIGHT = 'Copyright 1979-2025. Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
+VERSION = '1.3.0'
+VERSION_DATE = '2026-06-11'
+COPYRIGHT = 'Copyright 1979-2026. Sander W. van der Laan | s.w.vanderlaan [at] gmail [dot] com | https://vanderlaanand.science.'
 COPYRIGHT_TEXT = '''
 The MIT License (MIT).
 
@@ -52,6 +53,111 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 Reference: http://opensource.org.
 '''
+
+# ----------------------------------------
+# Batch-fix: stain normalisation + filename parser
+# ----------------------------------------
+# Canonical stain names keyed by lower-cased variant found in scanner filenames.
+_BATCH_FIX_STAIN_MAP = {
+    'a-sma':    'a-SMA',
+    'asma':     'a-SMA',
+    'he':       'HE',
+    'h&e':      'HE',
+    'sr':       'SR',
+    'evg':      'EvG',
+    'ev g':     'EvG',
+    'cd34':     'CD34',
+    'cd 34':    'CD34',
+    'cd68':     'CD68',
+    'cd 68':    'CD68',
+    'glyc.c':   'Glyc.C',
+    'glyc. c':  'Glyc.C',
+    'glyc c':   'Glyc.C',
+    'glycc':    'Glyc.C',
+    'glyc':     'Glyc.C',
+}
+
+# Matches scanner filenames such as:
+#   AE 4594  HE - 2026-02-20 08.53.54
+#   AE 4594 a-SMA
+#   AE4594 glyc.c
+#   AE 5082 1 a-SMA - 2026-03-23 11.57.53   (section number)
+#   AE 5086 SR 2026-03-23 10.46.17           (date with no " - " separator)
+_BATCH_FIX_PATTERN = re.compile(
+    r'^AE\s*(\d+)'                                              # AE + study number
+    r'(?:\s+(\d)(?=\s))?'                                       # optional single-digit section
+    r'\s+(.+?)'                                                 # stain (non-greedy)
+    r'(?:\s*[-–]?\s*\d{4}-\d{2}-\d{2}\s+\d{2}\.\d{2}\.\d{2})?' # optional date → discarded
+    r'$',
+    re.IGNORECASE,
+)
+
+# Already-canonical names (AENNNN.STAIN.ndpi or AENNNN.N.STAIN.ndpi) — skip silently.
+_BATCH_FIX_CANONICAL = re.compile(r'^AE\d+(?:\.\d+)?\.[^.].+$', re.IGNORECASE)
+
+
+def _batch_fix_normalise_stain(raw: str) -> str:
+    return _BATCH_FIX_STAIN_MAP.get(raw.strip().lower(), raw.strip())
+
+
+def batch_fix_directory(directory: str, apply: bool, force: bool, verbose: bool) -> dict:
+    """Normalise all .ndpi filenames in *directory* to AENNNN.STAIN.ndpi format.
+
+    apply  — False means dry-run (nothing is renamed).
+    force  — overwrite destination if it already exists.
+    """
+    counts = {'renamed': 0, 'skipped': 0, 'error': 0, 'unchanged': 0}
+    for fname in sorted(os.listdir(directory)):
+        if not fname.lower().endswith('.ndpi'):
+            continue
+        stem, ext = os.path.splitext(fname)
+
+        if _BATCH_FIX_CANONICAL.match(stem):
+            if verbose:
+                print(f"  [OK    ]  {fname!r}  (already canonical)")
+            counts['unchanged'] += 1
+            continue
+
+        m = _BATCH_FIX_PATTERN.match(stem.strip())
+        if not m:
+            print(f"  [SKIP  ]  {fname!r}  ← could not parse")
+            counts['skipped'] += 1
+            continue
+
+        study_id, section, stain_raw = m.groups()
+        stain = _batch_fix_normalise_stain(stain_raw)
+        parts = [f"AE{study_id}"]
+        if section:
+            parts.append(section)
+        parts.append(stain)
+        new_name = '.'.join(parts) + ext
+
+        if new_name == fname:
+            counts['unchanged'] += 1
+            continue
+
+        src = os.path.join(directory, fname)
+        dst = os.path.join(directory, new_name)
+        tag = "RENAME" if apply else "WOULD "
+        print(f"  [{tag}]  {fname!r}")
+        print(f"           → {new_name!r}")
+
+        if apply:
+            if os.path.exists(dst) and not force:
+                print(f"  [ERROR ]  destination exists; use --force to overwrite")
+                counts['error'] += 1
+            else:
+                try:
+                    os.rename(src, dst)
+                    counts['renamed'] += 1
+                except OSError as e:
+                    print(f"  [ERROR ]  {e}")
+                    counts['error'] += 1
+        else:
+            counts['renamed'] += 1  # dry-run tally
+
+    return counts
+
 
 # ----------------------------------------
 # UI
@@ -109,6 +215,12 @@ Display thumbnails from whole-slide images, attempt barcode decoding for auto-re
     parser.add_argument('--rotate', help="Rotate label/macro image before preview/decoding. Optional.", choices=[0,90,180,270], type=int, default=90)
 
     # Behavior
+    parser.add_argument('--batch-fix', help=(
+        "Batch-normalise scanner-generated NDPI filenames in one or more directories to "
+        "the canonical AENNNN.STAIN.ndpi format without opening slides. "
+        "Pass directories via -i/--input. Dry-run by default; combine with --dry-run=False "
+        "or omit --dry-run to apply. Optional."
+    ), action='store_true')
     parser.add_argument('--dry-run', help="Print intended renames, do not move files. Optional.", action='store_true')
     parser.add_argument('-f', '--force', help="Force output even if it exists. Optional.", default=False, action="store_true")
     parser.add_argument('-v', '--verbose', help="Verbose output. Optional.", default=False, action="store_true")
@@ -398,6 +510,30 @@ def get_new_filename(old_fname, dry_run=False):
 if __name__ == "__main__":
     args = parse_arguments()
     print_header()
-    files = validate_input(args)
-    process_images(files, args)
+
+    if args.batch_fix:
+        # --batch-fix: treat each -i argument as a directory; no slide is opened.
+        import sys
+        if not args.input:
+            print("ERROR: --batch-fix requires one or more directories via -i/--input.")
+            sys.exit(1)
+        apply = not args.dry_run
+        print(f"Mode: {'APPLY — files will be renamed' if apply else 'DRY-RUN — pass without --dry-run to rename for real'}\n")
+        total = {'renamed': 0, 'skipped': 0, 'error': 0, 'unchanged': 0}
+        for d in args.input:
+            if not os.path.isdir(d):
+                print(f"[ERROR] Not a directory: {d}")
+                continue
+            print(f"--- {d} ---")
+            counts = batch_fix_directory(d, apply=apply, force=args.force, verbose=args.verbose)
+            for k, v in counts.items():
+                total[k] += v
+            print()
+        label = 'renamed' if apply else 'would rename'
+        print(f"Summary: {total['renamed']} {label}, {total['unchanged']} already correct, "
+              f"{total['skipped']} unparseable, {total['error']} errors.")
+    else:
+        files = validate_input(args)
+        process_images(files, args)
+
     print_footer()
